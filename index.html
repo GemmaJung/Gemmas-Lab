@@ -3,43 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Digital Barrier - 시니어 키오스크 체험</title>
+    <title>Digital Inclusion - 시니어 키오스크 체험</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Pretendard', sans-serif; scroll-behavior: smooth; }
         
-        /* 시니어 모드 (기본값): 시각적 불편함 극대화 */
-        .senior-mode { 
-            filter: blur(0.8px) contrast(0.85); 
-        }
-        .senior-mode .tiny-text { font-size: 8px; line-height: 1.2; }
-        .senior-mode .btn-target { padding: 2px; } /* 터치 영역 축소 */
+        /* 공통 텍스트 (기본: 보통 크기) */
+        .kiosk-text { font-size: 1rem; line-height: 1.5; transition: font-size 0.3s ease; }
+        .kiosk-title { font-size: 1.125rem; font-weight: bold; }
+        .kiosk-small { font-size: 0.875rem; }
+
+        /* --- 도움 OFF 모드 (시니어의 현실) --- */
+        .help-off-mode { filter: blur(1px) contrast(0.9); }
+        .help-off-mode .help-tooltip { display: none !important; } /* 가이드 숨김 */
         
-        /* 정상 모드: 시각적 편안함 */
-        .normal-mode .tiny-text { font-size: 14px; line-height: 1.5; font-weight: bold; }
-        .normal-mode .btn-target { padding: 12px; }
+        /* --- 도움 ON 모드 (개선된 UI) --- */
+        .help-on-mode { filter: none; }
+        /* 폰트 크기 매우 크게 확대 */
+        .help-on-mode .kiosk-text { font-size: 1.35rem; font-weight: 800; }
+        .help-on-mode .kiosk-title { font-size: 1.5rem; font-weight: 900; }
+        .help-on-mode .kiosk-small { font-size: 1.125rem; font-weight: 700; }
+        .help-on-mode .btn-target { padding: 16px; border-width: 2px; border-color: #3b82f6; }
+        
+        /* 플로팅 팝업 (도움 가이드) */
+        .help-tooltip {
+            display: none;
+            position: absolute;
+            top: -38px; left: 50%; transform: translateX(-50%);
+            background: #ef4444; color: white;
+            padding: 6px 12px; border-radius: 8px;
+            font-size: 14px; font-weight: bold; white-space: nowrap;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            animation: bounce 1s infinite;
+            pointer-events: none; /* 클릭 방해 금지 */
+            z-index: 50;
+        }
+        .help-tooltip::after {
+            content: ''; position: absolute; top: 100%; left: 50%;
+            margin-left: -5px; border-width: 5px; border-style: solid;
+            border-color: #ef4444 transparent transparent transparent;
+        }
+        .help-on-mode .help-tooltip { display: block; }
 
         .hidden-view { display: none !important; }
         .frustration-shake { animation: shake 0.4s; }
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
         
-        /* 키오스크 버튼 공통 스타일 */
-        .kiosk-btn { 
-            width: 100%; border: 1px solid #cbd5e1; border-radius: 4px; 
-            transition: background 0.2s; cursor: pointer; text-align: center; 
-        }
+        .kiosk-btn { width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; transition: all 0.2s; cursor: pointer; text-align: center; position: relative; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-900">
 
     <header class="min-h-screen flex flex-col items-center justify-center text-center px-4 bg-white">
         <div class="px-4 py-1.5 mb-6 text-sm font-bold text-blue-600 bg-blue-50 rounded-full uppercase tracking-widest">Digital Inclusion Project</div>
-        <h1 class="text-4xl md:text-5xl font-extrabold mb-6 leading-tight">당신에게는 당연한 것이<br><span class="text-blue-600">누군가에게는 '벽'</span>이 됩니다.</h1>
-        <p class="text-slate-600 mb-10 max-w-xl mx-auto leading-relaxed">
-            시니어의 시각과 인지 능력에 맞춰 역설계된 키오스크 시뮬레이터입니다.<br>
-            당신은 한 번의 실수도 없이 결제까지 도달할 수 있습니까?
-        </p>
+        <h1 class="text-4xl md:text-5xl font-extrabold mb-6 leading-tight">키오스크, <span class="text-blue-600">친절한 안내</span>가 있다면<br>얼마나 달라질까요?</h1>
+        <div class="text-slate-600 mb-10 max-w-xl mx-auto leading-relaxed bg-slate-50 p-6 rounded-2xl border border-slate-100 text-left">
+            <h3 class="font-bold text-slate-800 mb-3 text-center">💡 올바른 체험 순서</h3>
+            <ol class="list-decimal list-inside space-y-2 text-sm">
+                <li>먼저 우측 상단의 <strong>[도움 OFF]</strong> 상태로 끝까지 결제를 마칩니다.</li>
+                <li>결과 화면에서 <strong>이름을 입력하고 기록을 저장</strong>합니다.</li>
+                <li>다시 첫 화면으로 돌아와 <strong>[도움 ON]</strong>으로 스위치를 켭니다.</li>
+                <li>가이드에 따라 결제를 마치고 <strong>동일한 이름</strong>으로 저장하여 차이를 확인하세요.</li>
+            </ol>
+        </div>
         <a href="#simulator" class="px-10 py-4 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition-colors">체험 시작하기</a>
     </header>
 
@@ -47,125 +74,144 @@
         <div class="max-w-5xl mx-auto px-4 grid lg:grid-cols-2 gap-12 items-center w-full">
             
             <div class="space-y-6">
-                <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200">
+                <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 relative overflow-hidden">
                     <h3 class="font-bold text-xl mb-6 flex items-center gap-2">📊 실시간 분석 시스템</h3>
                     <div class="grid grid-cols-2 gap-4">
                         <div class="p-4 bg-red-50 rounded-2xl border border-red-100">
-                            <p class="text-xs text-red-500 font-bold mb-1 uppercase tracking-wider">Frustration Score (좌절 점수)</p>
+                            <p class="text-xs text-red-500 font-bold mb-1 uppercase tracking-wider">스트레스 지수 (오클릭)</p>
                             <p class="text-4xl font-black text-red-600" id="score-display">0</p>
                         </div>
                         <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                            <p class="text-xs text-slate-500 font-bold mb-1 uppercase tracking-wider">Time Elapsed (소요 시간)</p>
+                            <p class="text-xs text-slate-500 font-bold mb-1 uppercase tracking-wider">소요 시간</p>
                             <p class="text-4xl font-black text-slate-800" id="time-display">0s</p>
                         </div>
                     </div>
-                    <ul class="mt-6 space-y-2 text-sm text-slate-600 bg-slate-50 p-4 rounded-xl">
-                        <li>⚠️ <strong>오클릭 감지:</strong> 버튼 외 영역 클릭 시 좌절 점수 상승 (+5)</li>
-                        <li>⚠️ <strong>함정 버튼:</strong> 불필요한 옵션이나 뒤로가기 클릭 시 스트레스 가중 (+10)</li>
-                        <li>💡 <strong>팁:</strong> 키오스크 우측 상단의 '불편함 ON/OFF'를 눌러 차이를 비교하세요.</li>
-                    </ul>
                 </div>
             </div>
 
             <div class="relative mx-auto">
-                <div class="w-[340px] h-[680px] bg-slate-900 rounded-[3rem] p-3 shadow-2xl border-[8px] border-slate-800 relative">
+                <div class="w-[360px] h-[720px] bg-slate-900 rounded-[3rem] p-3 shadow-2xl border-[8px] border-slate-800 relative">
                     <div class="absolute top-8 left-1/2 -translate-x-1/2 w-16 h-1.5 bg-slate-800 rounded-full"></div>
                     
-                    <div id="kiosk-screen" class="w-full h-full bg-white rounded-[2.2rem] overflow-hidden flex flex-col senior-mode">
+                    <div id="kiosk-screen" class="w-full h-full bg-white rounded-[2.2rem] overflow-hidden flex flex-col help-off-mode">
                         
-                        <div class="bg-slate-100 px-4 py-3 flex justify-between items-center border-b border-slate-200 z-10">
-                            <span class="text-[9px] font-bold text-slate-400">KIOSK OS v.3</span>
+                        <div class="bg-blue-50 px-4 py-3 flex justify-between items-center border-b border-blue-100 z-10">
+                            <span class="text-xs font-bold text-blue-800">키오스크 도우미</span>
                             <div class="flex items-center gap-2">
-                                <span class="text-[8px] font-bold text-slate-600">불편함 ON</span>
+                                <span class="text-sm font-bold text-blue-800" id="mode-label">도움 OFF</span>
                                 <label class="relative inline-flex items-center cursor-pointer clickable">
-                                    <input type="checkbox" id="mode-toggle" class="sr-only peer" checked onchange="updateMode()">
-                                    <div class="w-8 h-4 bg-slate-300 rounded-full peer peer-checked:bg-red-500 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:after:translate-x-[16px]"></div>
+                                    <input type="checkbox" id="mode-toggle" class="sr-only peer" onchange="updateMode()">
+                                    <div class="w-11 h-6 bg-slate-300 rounded-full peer peer-checked:bg-blue-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full"></div>
                                 </label>
                             </div>
                         </div>
 
-                        <div id="view-port" class="flex-1 relative p-4 flex flex-col overflow-y-auto bg-white">
+                        <div id="view-port" class="flex-1 relative p-5 flex flex-col overflow-y-auto bg-white">
                             
                             <div id="view-home" class="view-content h-full flex flex-col justify-center gap-4">
-                                <h2 class="text-center font-bold text-sm mb-4">원하시는 거래를 선택하십시오</h2>
-                                <button onclick="goView('cafe')" class="clickable kiosk-btn py-5 hover:bg-slate-50 font-mono text-[10px] btn-target">1. BEVERAGE_ORDER</button>
-                                <button onclick="goView('burger')" class="clickable kiosk-btn py-5 hover:bg-slate-50 font-mono text-[10px] btn-target">2. MEAL_SET_UPGRADE</button>
-                                <button onclick="goView('parking')" class="clickable kiosk-btn py-5 hover:bg-slate-50 font-mono text-[10px] btn-target">3. EXIT_PARKING_FEE</button>
+                                <h2 class="text-center font-bold mb-6 kiosk-title">어떤 작업을 원하시나요?</h2>
+                                <button onclick="goView('cafe')" class="clickable kiosk-btn py-5 hover:bg-slate-50 btn-target relative">
+                                    <div class="help-tooltip">여기를 눌러 커피를 주문하세요!</div>
+                                    <span class="kiosk-text">1. 카페 음료 주문하기</span>
+                                </button>
+                                <button onclick="goView('burger')" class="clickable kiosk-btn py-5 hover:bg-slate-50 btn-target relative">
+                                    <div class="help-tooltip">여기를 눌러 햄버거를 주문하세요!</div>
+                                    <span class="kiosk-text">2. 햄버거 세트 주문하기</span>
+                                </button>
+                                <button onclick="goView('parking')" class="clickable kiosk-btn py-5 hover:bg-slate-50 btn-target relative">
+                                    <div class="help-tooltip">여기를 눌러 정산하세요!</div>
+                                    <span class="kiosk-text">3. 주차 요금 정산하기</span>
+                                </button>
                             </div>
 
                             <div id="view-cafe" class="view-content hidden-view h-full flex flex-col">
-                                <div class="flex justify-between items-center mb-4 border-b pb-2">
-                                    <span class="tiny-text uppercase text-slate-400">Category: Coffee</span>
-                                    <span class="session-timer text-red-500 text-[10px] font-mono font-bold">15s</span>
+                                <div class="flex justify-between items-center mb-6 border-b pb-2">
+                                    <span class="kiosk-small text-slate-500 font-bold">메뉴 > 커피</span>
+                                    <span class="session-timer text-red-500 font-mono font-bold kiosk-small">15s</span>
                                 </div>
-                                <div class="grid grid-cols-2 gap-2 mb-4">
-                                    <div onclick="goView('cafe-opt')" class="clickable border p-2 rounded text-center btn-target">
-                                        <div class="w-full aspect-square bg-slate-100 mb-2"></div>
-                                        <p class="tiny-text">AMR_ICED_S_V2</p>
-                                        <p class="tiny-text text-blue-600 mt-1">4,500 KRW</p>
+                                <div class="grid grid-cols-2 gap-3 mb-4">
+                                    <div onclick="goView('cafe-opt')" class="clickable border p-3 rounded-xl text-center btn-target relative bg-slate-50 hover:bg-blue-50">
+                                        <div class="help-tooltip">이 버튼을 누르세요!</div>
+                                        <div class="w-full aspect-square bg-white rounded mb-2 border"></div>
+                                        <p class="kiosk-text">아이스 아메리카노</p>
+                                        <p class="kiosk-small text-blue-600 mt-1">4,500원</p>
                                     </div>
-                                    <div onclick="logFrustration(10)" class="clickable border p-2 rounded text-center opacity-60 btn-target">
-                                        <div class="w-full aspect-square bg-slate-100 mb-2"></div>
-                                        <p class="tiny-text">AMR_HOT_L_V1</p>
-                                        <p class="tiny-text text-blue-600 mt-1">5,100 KRW</p>
+                                    <div onclick="logFrustration(10)" class="clickable border p-3 rounded-xl text-center btn-target relative bg-slate-50">
+                                        <div class="w-full aspect-square bg-white rounded mb-2 border"></div>
+                                        <p class="kiosk-text">따뜻한 아메리카노</p>
+                                        <p class="kiosk-small text-blue-600 mt-1">4,500원</p>
                                     </div>
                                 </div>
                             </div>
 
                             <div id="view-cafe-opt" class="view-content hidden-view h-full flex flex-col">
-                                <h2 class="tiny-text mb-4 uppercase font-bold border-b pb-2">Personalize Options</h2>
-                                <div class="space-y-2 flex-1">
-                                    <label class="clickable flex justify-between items-center p-2 border border-slate-200 btn-target"><span class="tiny-text">ADD_ESPRESSO (+500)</span><input type="checkbox"></label>
-                                    <label class="clickable flex justify-between items-center p-2 border border-slate-200 btn-target"><span class="tiny-text">LESS_ICE_STILL_COLD</span><input type="checkbox"></label>
-                                    <label class="clickable flex justify-between items-center p-2 border border-slate-200 btn-target"><span class="tiny-text">OAT_MLK_SUB (+800)</span><input type="checkbox"></label>
+                                <h2 class="kiosk-title mb-4 border-b pb-2">추가 옵션을 선택하세요</h2>
+                                <div class="space-y-3 flex-1">
+                                    <label class="clickable flex justify-between items-center p-3 border border-slate-200 rounded-xl btn-target"><span class="kiosk-text">샷 추가 (+500원)</span><input type="checkbox" class="w-5 h-5"></label>
+                                    <label class="clickable flex justify-between items-center p-3 border border-slate-200 rounded-xl btn-target"><span class="kiosk-text">얼음 적게</span><input type="checkbox" class="w-5 h-5"></label>
+                                    <label class="clickable flex justify-between items-center p-3 border border-slate-200 rounded-xl btn-target"><span class="kiosk-text">귀리 우유로 변경 (+800원)</span><input type="checkbox" class="w-5 h-5"></label>
                                 </div>
-                                <button onclick="goView('done')" class="clickable w-full py-4 bg-black text-white tiny-text mt-4">CONFIRM_AND_CHECKOUT</button>
+                                <button onclick="goView('done')" class="clickable w-full py-4 bg-slate-900 text-white rounded-xl mt-4 relative">
+                                    <div class="help-tooltip">다 골랐다면 결제하기 클릭!</div>
+                                    <span class="kiosk-text">결제하기</span>
+                                </button>
                             </div>
 
                             <div id="view-burger" class="view-content hidden-view h-full flex flex-col">
                                 <div class="flex justify-between items-center mb-4 border-b pb-2">
-                                    <span class="tiny-text uppercase text-slate-400">Meal Config</span>
-                                    <span class="session-timer text-red-500 text-[10px] font-mono font-bold">15s</span>
+                                    <span class="kiosk-small text-slate-500 font-bold">세트 구성</span>
+                                    <span class="session-timer text-red-500 font-mono font-bold kiosk-small">15s</span>
                                 </div>
                                 <div class="flex-1 flex flex-col justify-center items-center text-center gap-4">
-                                    <h2 class="tiny-text font-bold">BGN_BURGER_SET</h2>
-                                    <p class="tiny-text text-slate-500">Would you like to upgrade to MEGA size?</p>
+                                    <h2 class="kiosk-title">불고기 버거 세트</h2>
+                                    <p class="kiosk-text text-slate-600 mb-4">감자튀김과 콜라를 라지 사이즈로<br>업그레이드 하시겠습니까?</p>
                                     
-                                    <button onclick="logFrustration(15)" class="clickable w-full py-6 bg-red-600 text-white tiny-text font-bold animate-pulse btn-target">YES! UPGRADE NOW (+1,500)</button>
-                                    <button onclick="goView('done')" class="clickable w-1/2 py-2 text-slate-400 tiny-text underline mt-8 btn-target">No, skip this step</button>
+                                    <button onclick="logFrustration(15)" class="clickable w-full py-6 bg-red-600 text-white rounded-xl shadow-lg btn-target relative">
+                                        <span class="kiosk-text font-bold">네! 라지 세트로 변경 (+1,500원)</span>
+                                    </button>
+                                    <button onclick="goView('done')" class="clickable w-full py-3 bg-slate-100 text-slate-600 rounded-xl mt-4 btn-target relative">
+                                        <div class="help-tooltip">원치 않으면 여기를 누르세요!</div>
+                                        <span class="kiosk-text">아니오 (기본 세트 유지)</span>
+                                    </button>
                                 </div>
                             </div>
 
                             <div id="view-parking" class="view-content hidden-view h-full flex flex-col">
-                                <div class="flex justify-between items-center mb-8 border-b pb-2">
-                                    <span class="tiny-text uppercase text-slate-400">Vehicle Search</span>
-                                    <span class="session-timer text-red-500 text-[10px] font-mono font-bold">10s</span> </div>
-                                <p class="tiny-text text-center mb-6">Enter 4 digits of your plate</p>
-                                
-                                <div class="grid grid-cols-3 gap-1 mb-8">
-                                    <button onclick="logFrustration(2)" class="clickable border py-3 tiny-text bg-slate-50">9</button>
-                                    <button onclick="logFrustration(2)" class="clickable border py-3 tiny-text bg-slate-50">4</button>
-                                    <button onclick="logFrustration(2)" class="clickable border py-3 tiny-text bg-slate-50">7</button>
-                                    <button onclick="logFrustration(2)" class="clickable border py-3 tiny-text bg-slate-50">1</button>
-                                    <button onclick="goView('done')" class="clickable border py-3 tiny-text bg-blue-50 font-bold border-blue-200">5</button> <button onclick="logFrustration(2)" class="clickable border py-3 tiny-text bg-slate-50">0</button>
-                                    <button onclick="logFrustration(2)" class="clickable border py-3 tiny-text bg-slate-50">2</button>
-                                    <button onclick="logFrustration(2)" class="clickable border py-3 tiny-text bg-slate-50">8</button>
-                                    <button onclick="logFrustration(2)" class="clickable border py-3 tiny-text bg-slate-50">3</button>
+                                <div class="flex justify-between items-center mb-6 border-b pb-2">
+                                    <span class="kiosk-small text-slate-500 font-bold">차량 번호 검색</span>
+                                    <span class="session-timer text-red-500 font-mono font-bold kiosk-small">15s</span>
                                 </div>
-                                <p class="text-[8px] text-red-500 text-center">※ Pressing wrong keys will cause errors.</p>
+                                <p class="kiosk-title text-center mb-8">차량 번호 뒤 4자리를<br>입력해 주세요.</p>
+                                
+                                <div class="grid grid-cols-3 gap-2 mb-8 px-4">
+                                    <button onclick="logFrustration(2)" class="clickable border rounded-xl py-4 bg-slate-50 kiosk-text font-bold">9</button>
+                                    <button onclick="logFrustration(2)" class="clickable border rounded-xl py-4 bg-slate-50 kiosk-text font-bold">4</button>
+                                    <button onclick="logFrustration(2)" class="clickable border rounded-xl py-4 bg-slate-50 kiosk-text font-bold">7</button>
+                                    <button onclick="logFrustration(2)" class="clickable border rounded-xl py-4 bg-slate-50 kiosk-text font-bold">1</button>
+                                    <button onclick="goView('done')" class="clickable border rounded-xl py-4 bg-blue-100 border-blue-300 kiosk-text font-bold text-blue-700 relative">
+                                        <div class="help-tooltip">여기를 눌러 완료하세요!</div>
+                                        5
+                                    </button>
+                                    <button onclick="logFrustration(2)" class="clickable border rounded-xl py-4 bg-slate-50 kiosk-text font-bold">0</button>
+                                    <button onclick="logFrustration(2)" class="clickable border rounded-xl py-4 bg-slate-50 kiosk-text font-bold">2</button>
+                                    <button onclick="logFrustration(2)" class="clickable border rounded-xl py-4 bg-slate-50 kiosk-text font-bold">8</button>
+                                    <button onclick="logFrustration(2)" class="clickable border rounded-xl py-4 bg-slate-50 kiosk-text font-bold">3</button>
+                                </div>
                             </div>
 
                             <div id="view-done" class="view-content hidden-view h-full flex flex-col items-center justify-center text-center">
-                                <div class="text-5xl mb-6">🧾</div>
-                                <h2 class="font-bold text-sm mb-4">거래가 완료되었습니다</h2>
-                                <div class="bg-slate-50 p-4 rounded-xl w-full mb-8 border border-slate-200">
-                                    <p class="text-[10px] text-slate-600 mb-2">당신의 최종 좌절 점수</p>
-                                    <p class="text-2xl font-black text-red-600" id="final-score">0</p>
+                                <div class="text-6xl mb-4">🎉</div>
+                                <h2 class="font-bold text-xl mb-6">결제가 완료되었습니다</h2>
+                                
+                                <div id="save-area" class="w-full bg-slate-50 p-5 rounded-2xl border border-slate-200 mb-6">
+                                    <p class="text-sm font-bold text-slate-700 mb-3">비교를 위해 이름을 입력하고 저장하세요.</p>
+                                    <input type="text" id="user-name" placeholder="이름 (예: 홍길동)" class="clickable w-full p-3 border rounded-xl text-center mb-3">
+                                    <button onclick="saveAndCheckRecord()" class="clickable w-full py-3 bg-blue-600 text-white rounded-xl font-bold">기록 저장하기</button>
                                 </div>
-                                <p class="text-[10px] text-slate-500 leading-relaxed mb-8 break-keep">
-                                    이 짧은 과정에서 느낀 답답함과 초조함이<br>누군가에게는 매일 마주하는 현실입니다.
-                                </p>
-                                <button onclick="location.reload()" class="clickable px-6 py-3 bg-slate-900 text-white text-[10px] font-bold rounded uppercase tracking-widest">Restart Experience</button>
+
+                                <div id="comparison-result" class="w-full"></div>
+
+                                <button id="restart-btn" onclick="goHome()" class="clickable hidden-view px-6 py-3 bg-slate-900 text-white text-sm font-bold rounded-xl mt-4 w-full">첫 화면으로 돌아가기</button>
                             </div>
 
                         </div>
@@ -178,57 +224,79 @@
     <script>
         let frustration = 0;
         let time = 0;
+        let mainTimer;
         let sessionTimer;
         let timeLeft = 15;
+        let isTimerRunning = false;
 
-        // 전체 진행 시간 타이머
-        setInterval(() => {
-            time++;
-            document.getElementById('time-display').innerText = time + 's';
-        }, 1000);
-
-        // 시니어 모드 <-> 정상 모드 토글
-        function updateMode() {
-            const isSenior = document.getElementById('mode-toggle').checked;
-            const screen = document.getElementById('kiosk-screen');
-            if(isSenior) {
-                screen.classList.add('senior-mode');
-                screen.classList.remove('normal-mode');
-            } else {
-                screen.classList.remove('senior-mode');
-                screen.classList.add('normal-mode');
+        // 메인 타이머 시작 함수
+        function startMainTimer() {
+            if(!isTimerRunning) {
+                isTimerRunning = true;
+                mainTimer = setInterval(() => {
+                    time++;
+                    document.getElementById('time-display').innerText = time + 's';
+                }, 1000);
             }
         }
 
-        // 좌절 점수 증가 로직
+        // 도움 모드 토글 (화면 UI 실시간 변경)
+        function updateMode() {
+            const isHelpOn = document.getElementById('mode-toggle').checked;
+            const screen = document.getElementById('kiosk-screen');
+            const label = document.getElementById('mode-label');
+            
+            if(isHelpOn) {
+                screen.classList.remove('help-off-mode');
+                screen.classList.add('help-on-mode');
+                label.innerText = "도움 ON";
+                label.classList.replace('text-slate-500', 'text-blue-800');
+            } else {
+                screen.classList.remove('help-on-mode');
+                screen.classList.add('help-off-mode');
+                label.innerText = "도움 OFF";
+                label.classList.replace('text-blue-800', 'text-slate-500');
+            }
+        }
+
+        // 스트레스(좌절) 점수 증가
         function logFrustration(val) {
             frustration += val;
             const el = document.getElementById('score-display');
             el.innerText = frustration;
-            // 점수 상승 시 화면 흔들림 효과
             el.parentElement.classList.add('frustration-shake');
             setTimeout(() => el.parentElement.classList.remove('frustration-shake'), 400);
         }
 
-        // 화면 전환 및 타이머 관리 로직
+        // 화면 전환 로직
         function goView(viewId) {
-            // 모든 뷰 숨기기
+            startMainTimer(); // 첫 클릭 시 시간 측정 시작
+
             document.querySelectorAll('.view-content').forEach(v => v.classList.add('hidden-view'));
-            // 대상 뷰 보이기
             document.getElementById('view-' + viewId).classList.remove('hidden-view');
             
-            // 타이머 초기화 및 시작
             clearInterval(sessionTimer);
-            if(viewId === 'cafe' || viewId === 'burger') {
+            if(['cafe', 'burger', 'parking'].includes(viewId)) {
                 startSessionTimer(15);
-            } else if (viewId === 'parking') {
-                startSessionTimer(10); // 주차정산은 시간 압박 극대화
             } else if (viewId === 'done') {
-                document.getElementById('final-score').innerText = frustration;
+                clearInterval(mainTimer);
+                isTimerRunning = false;
+                document.getElementById('save-area').style.display = 'block';
+                document.getElementById('restart-btn').classList.add('hidden-view');
+                document.getElementById('comparison-result').innerHTML = ''; // 결과창 초기화
             }
         }
 
-        // 각 단계별 제한 시간 로직
+        // 첫 화면으로 리셋 (변수 초기화 포함)
+        function goHome() {
+            frustration = 0;
+            time = 0;
+            document.getElementById('score-display').innerText = '0';
+            document.getElementById('time-display').innerText = '0s';
+            goView('home');
+        }
+
+        // 세션(화면별) 제한 시간 로직
         function startSessionTimer(seconds) {
             timeLeft = seconds;
             updateTimerDisplay();
@@ -239,8 +307,8 @@
                 
                 if(timeLeft <= 0) {
                     clearInterval(sessionTimer);
-                    alert("응답 시간이 초과되어 처음으로 돌아갑니다. (Session Expired)");
-                    location.reload();
+                    alert("시간이 초과되었습니다. 처음으로 돌아갑니다.");
+                    goHome();
                 }
             }, 1000);
         }
@@ -253,167 +321,84 @@
             });
         }
 
-        // 오클릭(Miss-click) 감지: 
-        // 클릭 가능한 요소(.clickable)가 아닌 배경 화면이나 빈 공간을 터치하면 점수 가중
+        // 빈 공간 클릭 감지 (툴팁 등 클릭 방지용 요소 제외)
         document.getElementById('view-port').addEventListener('click', (e) => {
-            if(!e.target.closest('.clickable')) {
+            if(!e.target.closest('.clickable') && !e.target.classList.contains('help-tooltip')) {
                 logFrustration(5);
             }
         });
+
+        // 로컬 스토리지에 기록 저장 및 두 모드 비교 연산
+        function saveAndCheckRecord() {
+            const name = document.getElementById('user-name').value.trim();
+            if(!name) { 
+                alert('이름을 입력해주세요.'); 
+                return; 
+            }
+
+            const isHelpOn = document.getElementById('mode-toggle').checked;
+            const modePrefix = isHelpOn ? 'on_' : 'off_';
+            
+            // 현재 기록 저장
+            const record = { score: frustration, time: time };
+            localStorage.setItem(modePrefix + name, JSON.stringify(record));
+            
+            // 저장된 기록 불러오기
+            const offRecordStr = localStorage.getItem('off_' + name);
+            const onRecordStr = localStorage.getItem('on_' + name);
+            
+            const resultBox = document.getElementById('comparison-result');
+            
+            // 두 기록이 모두 존재할 경우 결과 비교
+            if (offRecordStr && onRecordStr) {
+                const offRecord = JSON.parse(offRecordStr);
+                const onRecord = JSON.parse(onRecordStr);
+                
+                const scoreDiff = offRecord.score - onRecord.score;
+                const timeDiff = offRecord.time - onRecord.time;
+                
+                let feedback = "";
+                if(scoreDiff > 0 && timeDiff > 0) {
+                    feedback = `도움이 주어졌을 때 <strong>${scoreDiff}점</strong> 덜 실수했고, <strong>${timeDiff}초</strong> 더 빠르게 완료하셨습니다!`;
+                } else if (scoreDiff > 0) {
+                    feedback = `도움이 주어졌을 때 시간은 비슷했지만 <strong>${scoreDiff}점</strong> 덜 실수하셨습니다!`;
+                } else if (timeDiff > 0) {
+                    feedback = `도움이 주어졌을 때 실수는 비슷했지만 <strong>${timeDiff}초</strong> 더 빠르게 완료하셨습니다!`;
+                } else {
+                    feedback = `원래부터 키오스크 조작에 매우 능숙하시군요! 하지만 시니어에게는 이 팝업 가이드가 필수적입니다.`;
+                }
+
+                resultBox.innerHTML = `
+                    <div class="p-5 bg-blue-50 border border-blue-200 rounded-2xl text-left">
+                        <h4 class="font-bold text-blue-800 mb-2">📊 ${name}님의 비교 결과</h4>
+                        <p class="text-sm text-slate-700 mb-3">${feedback}</p>
+                        <div class="grid grid-cols-2 gap-2 text-xs">
+                            <div class="p-2 bg-white rounded border text-center">
+                                <span class="block text-slate-400">도움 OFF</span>
+                                <span class="font-bold text-slate-700">${offRecord.score}점 / ${offRecord.time}초</span>
+                            </div>
+                            <div class="p-2 bg-white rounded border text-center">
+                                <span class="block text-blue-400">도움 ON</span>
+                                <span class="font-bold text-blue-700">${onRecord.score}점 / ${onRecord.time}초</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // 하나만 기록되었을 경우
+                const nextMode = isHelpOn ? '도움 OFF' : '도움 ON';
+                resultBox.innerHTML = `
+                    <div class="p-4 bg-yellow-50 border border-yellow-200 rounded-2xl text-sm text-yellow-800">
+                        <strong>[${isHelpOn ? '도움 ON' : '도움 OFF'}]</strong> 기록이 저장되었습니다.<br>
+                        이제 우측 상단 스위치를 눌러 <strong>[${nextMode}]</strong> 상태로 다시 한 번 체험해보세요!
+                    </div>
+                `;
+            }
+            
+            // 입력창 숨기고 홈으로 가는 버튼 표시
+            document.getElementById('save-area').style.display = 'none';
+            document.getElementById('restart-btn').classList.remove('hidden-view');
+        }
     </script>
-</body>
-</html><p class="p1"><span class="Apple-converted-space">        </span>.tiny-text { font-size: 0.65rem !important; }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.hidden-step { display: none; }</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/style&gt;</p>
-<p class="p1">&lt;/head&gt;</p>
-<p class="p1">&lt;body class="bg-gray-100 min-h-screen flex flex-col items-center p-4"&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="w-full max-w-md bg-white p-4 rounded-xl shadow-md mb-4 flex justify-between items-center"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;h1 class="font-bold text-lg"&gt;디지털 장벽 체험관&lt;/h1&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;p class="text-xs text-gray-500"&gt;당신은 시니어의 마음을 이해할 수 있습니까?&lt;/p&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="flex flex-col items-end"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;span class="text-[10px] font-bold text-red-500"&gt;좌절 점수: &lt;span id="frustration-score"&gt;0&lt;/span&gt;&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;label class="relative inline-flex items-center cursor-pointer mt-1"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;input type="checkbox" id="mode-toggle" class="sr-only peer" checked onchange="toggleMode()"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"&gt;&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;span class="ml-2 text-xs font-medium text-gray-900"&gt;불편함 ON&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/label&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="kiosk-screen" class="w-full max-w-md bg-white h-[600px] rounded-3xl shadow-2xl relative overflow-hidden border-8 border-gray-800 senior-mode"&gt;</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div id="step-main" class="p-6 h-full flex flex-col justify-center gap-4"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;h2 class="text-center font-bold mb-8"&gt;서비스를 선택하세요&lt;/h2&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;button onclick="startApp('cafe')" class="w-full py-4 bg-gray-200 rounded hover:bg-gray-300 text-sm"&gt;BEVERAGE ORDER&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;button onclick="startApp('burger')" class="w-full py-4 bg-gray-200 rounded hover:bg-gray-300 text-sm"&gt;MEAL SET-UP&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;button onclick="startApp('parking')" class="w-full py-4 bg-gray-200 rounded hover:bg-gray-300 text-sm"&gt;VALET EXIT&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div id="step-cafe" class="hidden-step p-4 h-full flex flex-col"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="flex justify-between items-center mb-4"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;span class="tiny-text uppercase text-gray-400"&gt;Category: HOT/ICE/EXT&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;span id="timer" class="text-red-500 font-mono text-xs"&gt;10s&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="grid grid-cols-2 gap-2 mb-4"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="border p-2 text-center" onclick="addScore(5)"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="w-full h-20 bg-gray-100 mb-1"&gt;&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;span class="tiny-text font-bold text-[8px]"&gt;AMR_H_GRD_V1&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p class="tiny-text text-blue-600"&gt;₩4,500&lt;/p&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="border p-2 text-center border-blue-500 ring-1 ring-blue-500" onclick="nextStep('cafe-opt')"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="w-full h-20 bg-gray-100 mb-1"&gt;&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;span class="tiny-text font-bold text-[8px]"&gt;AMR_I_STD_V2&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p class="tiny-text text-blue-600"&gt;₩4,500&lt;/p&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;p class="text-[9px] text-gray-400 text-center italic"&gt;※ 실제 이미지와 다를 수 있으며 위 이미지는 연출된 것입니다.&lt;/p&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div id="step-cafe-opt" class="hidden-step p-4 h-full"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;h3 class="tiny-text font-bold mb-4"&gt;PERSONAL OPTIONS (CHECK ALL)&lt;/h3&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="space-y-2 mb-8"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;label class="flex items-center gap-2 border p-1"&gt;&lt;input type="checkbox" class="w-2 h-2"&gt; &lt;span class="tiny-text italic text-[8px]"&gt;ADD_ESPR_SHT (+500)&lt;/span&gt;&lt;/label&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;label class="flex items-center gap-2 border p-1"&gt;&lt;input type="checkbox" class="w-2 h-2"&gt; &lt;span class="tiny-text italic text-[8px]"&gt;LESS_ICE_STILL_COLD&lt;/span&gt;&lt;/label&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;label class="flex items-center gap-2 border p-1"&gt;&lt;input type="checkbox" class="w-2 h-2"&gt; &lt;span class="tiny-text italic text-[8px]"&gt;OAT_MLK_SUB (+800)&lt;/span&gt;&lt;/label&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;label class="flex items-center gap-2 border p-1"&gt;&lt;input type="checkbox" class="w-2 h-2"&gt; &lt;span class="tiny-text italic text-[8px]"&gt;ECO_CUP_DISC (-300)&lt;/span&gt;&lt;/label&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;button onclick="nextStep('complete')" class="w-full py-1 bg-black text-white text-[10px] tracking-widest"&gt;ORDER_CONFIRM_FINAL&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div id="step-parking" class="hidden-step p-8 h-full flex flex-col items-center"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;p class="tiny-text mb-10 text-center"&gt;차량번호 4자리를 입력하세요&lt;br&gt;&lt;span class="text-gray-400"&gt;(ENTER YOUR VEHICLE DIGITS)&lt;/span&gt;&lt;/p&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="grid grid-cols-5 gap-1 mb-10"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;button onclick="addScore(2)" class="w-8 h-8 border text-[10px]"&gt;9&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;button onclick="addScore(2)" class="w-8 h-8 border text-[10px]"&gt;0&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;button onclick="addScore(2)" class="w-8 h-8 border text-[10px]"&gt;4&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;button onclick="addScore(2)" class="w-8 h-8 border text-[10px]"&gt;1&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;button onclick="addScore(2)" class="w-8 h-8 border text-[10px]"&gt;7&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;button onclick="addScore(2)" class="w-8 h-8 border text-[10px]"&gt;2&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;button onclick="addScore(2)" class="w-8 h-8 border text-[10px]"&gt;5&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;button onclick="nextStep('complete')" class="w-8 h-8 border text-[10px] bg-gray-50 font-bold"&gt;8&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;button onclick="addScore(2)" class="w-8 h-8 border text-[10px]"&gt;3&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;button onclick="addScore(2)" class="w-8 h-8 border text-[10px]"&gt;6&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;p class="text-[8px] text-red-400"&gt;잔여 시간 내에 입력하지 않으면 초기화됩니다.&lt;/p&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div id="step-complete" class="hidden-step p-8 h-full flex flex-col items-center justify-center text-center"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4"&gt;✅&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;h2 class="font-bold text-sm mb-2"&gt;주문/정산이 완료되었습니다.&lt;/h2&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;p id="final-report" class="text-xs text-gray-600 mb-8 leading-relaxed"&gt;&lt;/p&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;button onclick="location.reload()" class="px-6 py-2 bg-blue-600 text-white text-xs rounded-full uppercase"&gt;Try Again&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div id="miss-click-overlay" class="miss-click-area" onclick="handleMissClick(event)"&gt;&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;script&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>let score = 0;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>let timerInterval;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>let timeLeft = 10;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>function toggleMode() {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const isSenior = document.getElementById('mode-toggle').checked;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const screen = document.getElementById('kiosk-screen');</p>
-<p class="p1"><span class="Apple-converted-space">            </span>if(isSenior) {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>screen.classList.add('senior-mode');</p>
-<p class="p1"><span class="Apple-converted-space">            </span>} else {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>screen.classList.remove('senior-mode');</p>
-<p class="p1"><span class="Apple-converted-space">            </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>function addScore(val) {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>score += val;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('frustration-score').innerText = score;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>function handleMissClick(e) {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>// 버튼이 아닌 영역 클릭 시</p>
-<p class="p1"><span class="Apple-converted-space">            </span>if(e.target.id === 'miss-click-overlay') {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>addScore(10);</p>
-<p class="p1"><span class="Apple-converted-space">                </span>alert("정확한 지점을 터치해 주세요. (Too far from target)");</p>
-<p class="p1"><span class="Apple-converted-space">            </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>function startApp(type) {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>nextStep('step-' + type);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>startTimer();</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>function nextStep(stepId) {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>document.querySelectorAll('#kiosk-screen &gt; div').forEach(div =&gt; div.classList.add('hidden-step'));</p>
-<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById(stepId === 'complete' ? 'step-complete' : stepId).classList.remove('hidden-step');</p>
-<p class="p2"><span class="Apple-converted-space">            </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>if(stepId === 'complete') {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>clearInterval(timerInterval);</p>
-<p class="p1"><span class="Apple-converted-space">                </span>const isSenior = document.getElementById('mode-toggle').checked;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>let message = isSenior ?<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">                    </span>`당신은 결제까지 ${score}점의 좌절을 겪었습니다. 이것은 누군가에게는 매일의 공포입니다.` :<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">                    </span>"개선된 모드에서는 훨씬 빠르군요. 디자인의 힘입니다.";</p>
-<p class="p1"><span class="Apple-converted-space">                </span>document.getElementById('final-report').innerText = message;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>function startTimer() {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>clearInterval(timerInterval);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>timeLeft = 10;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>timerInterval = setInterval(() =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>timeLeft--;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>const timerEl = document.getElementById('timer');</p>
-<p class="p1"><span class="Apple-converted-space">                </span>if(timerEl) timerEl.innerText = timeLeft + 's';</p>
-<p class="p2"><span class="Apple-converted-space">                </span></p>
-<p class="p1"><span class="Apple-converted-space">                </span>if(timeLeft &lt;= 0) {</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>clearInterval(timerInterval);</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>alert("시간이 초과되어 처음으로 돌아갑니다. (Session Expired)");</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>location.reload();</p>
-<p class="p1"><span class="Apple-converted-space">                </span>}</p>
-<p class="p1"><span class="Apple-converted-space">            </span>}, 1000);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/script&gt;</p>
-<p class="p1">&lt;/body&gt;</p>
-<p class="p1">&lt;/html&gt;</p>
 </body>
 </html>
