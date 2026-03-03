@@ -9,20 +9,18 @@
     <style>
         body { font-family: 'Pretendard', sans-serif; background-color: #f1f5f9; margin: 0; overflow: hidden; touch-action: manipulation; }
         
-        /* 모바일 컨테이너 최적화 */
         #app-container { max-width: 480px; margin: 0 auto; height: 100dvh; background: #fff; display: flex; flex-direction: column; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
 
-        /* 공통 텍스트 */
         .kiosk-text { font-size: 1rem; line-height: 1.4; transition: all 0.3s ease; }
         .kiosk-title { font-size: 1.125rem; font-weight: bold; }
         .kiosk-small { font-size: 0.875rem; }
 
-        /* --- 도움 OFF 모드 (시니어의 현실) --- */
+        /* --- 도움 OFF 모드 --- */
         .help-off-mode { filter: blur(1.2px) contrast(0.85); }
         .help-off-mode .help-tooltip { display: none !important; } 
         .help-off-mode .btn-target { padding: 12px; }
         
-        /* --- 도움 ON 모드 (개선된 UI) --- */
+        /* --- 도움 ON 모드 --- */
         .help-on-mode { filter: none; }
         .help-on-mode .kiosk-text { font-size: 1.35rem; font-weight: 800; letter-spacing: -0.5px; }
         .help-on-mode .kiosk-title { font-size: 1.6rem; font-weight: 900; }
@@ -43,7 +41,6 @@
         }
         .help-on-mode .help-tooltip { display: block; }
 
-        /* UI 상태 클래스 */
         .hidden-view { display: none !important; }
         
         /* 애니메이션 */
@@ -69,7 +66,7 @@
                 <li>처음엔 <strong>[도움 OFF]</strong> 상태로 결제를 마칩니다.</li>
                 <li>이름을 입력해 <strong>기록을 저장</strong>합니다.</li>
                 <li>다시 첫 화면에서 <strong>[도움 ON]</strong>을 켭니다.</li>
-                <li>안내를 따라 결제하고 <strong>변화를 비교</strong>하세요.</li>
+                <li>안내를 따라 똑같이 결제하고 <strong>변화를 비교</strong>하세요.</li>
             </ol>
         </div>
         <button onclick="startApp()" class="w-full py-4 bg-slate-900 text-white rounded-2xl font-bold text-lg hover:bg-slate-800">체험 시작하기</button>
@@ -101,18 +98,27 @@
         
         <div id="view-home" class="view-content h-full flex flex-col justify-center gap-4">
             <h2 class="text-center mb-6 kiosk-title">어떤 작업을 원하시나요?</h2>
-            <button onclick="goView('cafe')" class="clickable kiosk-btn py-5 hover:bg-slate-50 btn-target">
+            <button onclick="showScenario('cafe')" class="clickable kiosk-btn py-5 hover:bg-slate-50 btn-target relative">
                 <div class="help-tooltip">여기를 눌러 커피를 주문하세요!</div>
                 <span class="kiosk-text">1. 카페 음료 주문하기</span>
             </button>
-            <button onclick="goView('burger')" class="clickable kiosk-btn py-5 hover:bg-slate-50 btn-target mt-2">
+            <button onclick="showScenario('burger')" class="clickable kiosk-btn py-5 hover:bg-slate-50 btn-target relative mt-2">
                 <div class="help-tooltip">여기를 눌러 햄버거를 주문하세요!</div>
                 <span class="kiosk-text">2. 햄버거 세트 주문하기</span>
             </button>
-            <button onclick="goView('parking')" class="clickable kiosk-btn py-5 hover:bg-slate-50 btn-target mt-2">
+            <button onclick="showScenario('parking')" class="clickable kiosk-btn py-5 hover:bg-slate-50 btn-target relative mt-2">
                 <div class="help-tooltip">여기를 눌러 정산하세요!</div>
                 <span class="kiosk-text">3. 주차 요금 정산하기</span>
             </button>
+        </div>
+
+        <div id="view-scenario" class="view-content hidden-view h-full flex flex-col items-center justify-center text-center px-2">
+            <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-3xl mb-4">📋</div>
+            <h2 class="kiosk-title text-blue-600 mb-6" id="scenario-title">요구사항</h2>
+            <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200 w-full mb-8 shadow-sm">
+                <p class="kiosk-text text-slate-800 leading-relaxed font-bold break-keep" id="scenario-desc"></p>
+            </div>
+            <button onclick="startTask()" class="clickable w-full py-4 bg-slate-900 text-white rounded-2xl font-bold text-lg shadow-md hover:bg-slate-800">미션 시작하기 (타이머 작동)</button>
         </div>
 
         <div id="view-cafe" class="view-content hidden-view h-full flex flex-col">
@@ -122,12 +128,12 @@
             </div>
             <div class="grid grid-cols-2 gap-3 mb-4">
                 <div onclick="goView('cafe-opt')" class="clickable kiosk-btn p-3 bg-slate-50 btn-target">
-                    <div class="help-tooltip">이 버튼을 누르세요!</div>
+                    <div class="help-tooltip">아이스 아메리카노 선택!</div>
                     <div class="w-full aspect-square bg-white rounded-lg mb-2 border"></div>
                     <p class="kiosk-text">아이스 아메리카노</p>
                     <p class="kiosk-small text-blue-600 mt-1">4,500원</p>
                 </div>
-                <div onclick="logFrustration(10)" class="clickable kiosk-btn p-3 bg-slate-50 btn-target">
+                <div onclick="logFrustration(10)" class="clickable kiosk-btn p-3 bg-slate-50 btn-target opacity-60">
                     <div class="w-full aspect-square bg-white rounded-lg mb-2 border"></div>
                     <p class="kiosk-text">따뜻한 아메리카노</p>
                     <p class="kiosk-small text-blue-600 mt-1">4,500원</p>
@@ -143,7 +149,7 @@
                 <label class="clickable flex justify-between items-center p-4 border border-slate-200 rounded-xl btn-target bg-white"><span class="kiosk-text">귀리 우유로 변경 (+800원)</span><input type="checkbox" class="w-6 h-6"></label>
             </div>
             <button onclick="goView('done')" class="clickable w-full py-5 bg-slate-900 text-white rounded-2xl mt-4 relative">
-                <div class="help-tooltip">다 골랐다면 결제하기 클릭!</div>
+                <div class="help-tooltip">옵션 3개를 모두 체크하고 결제하기 클릭!</div>
                 <span class="kiosk-text">결제하기</span>
             </button>
         </div>
@@ -157,11 +163,11 @@
                 <h2 class="kiosk-title">불고기 버거 세트</h2>
                 <p class="kiosk-text text-slate-600 mb-6">감자튀김과 콜라를 라지 사이즈로<br>업그레이드 하시겠습니까?</p>
                 
-                <button onclick="logFrustration(15)" class="clickable w-full py-6 bg-red-600 text-white rounded-2xl shadow-lg btn-target relative mb-2">
+                <button onclick="logFrustration(15)" class="clickable w-full py-6 bg-red-600 text-white rounded-2xl shadow-lg btn-target relative mb-2 animate-pulse">
                     <span class="kiosk-text font-bold">네! 라지 세트로 변경 (+1,500원)</span>
                 </button>
                 <button onclick="goView('done')" class="clickable w-full py-4 bg-slate-100 text-slate-600 rounded-2xl btn-target relative border border-slate-300">
-                    <div class="help-tooltip">원치 않으면 여기를 누르세요!</div>
+                    <div class="help-tooltip">기본 세트를 위해 이 버튼을 누르세요!</div>
                     <span class="kiosk-text">아니오 (기본 세트 유지)</span>
                 </button>
             </div>
@@ -180,7 +186,7 @@
                 <button onclick="logFrustration(2)" class="clickable kiosk-btn py-5 bg-slate-50 kiosk-text font-bold text-xl">7</button>
                 <button onclick="logFrustration(2)" class="clickable kiosk-btn py-5 bg-slate-50 kiosk-text font-bold text-xl">1</button>
                 <button onclick="goView('done')" class="clickable kiosk-btn py-5 bg-blue-100 border-blue-300 kiosk-text font-bold text-blue-700 text-xl relative">
-                    <div class="help-tooltip">여기를 눌러 완료하세요!</div>
+                    <div class="help-tooltip">숫자 5를 누르세요!</div>
                     5
                 </button>
                 <button onclick="logFrustration(2)" class="clickable kiosk-btn py-5 bg-slate-50 kiosk-text font-bold text-xl">0</button>
@@ -215,8 +221,24 @@
     let sessionTimer;
     let timeLeft = 15;
     let isTimerRunning = false;
+    let currentActiveTask = ''; // 선택된 미션 추적
 
-    // 앱 시작 (인트로 닫기)
+    // 시나리오 데이터 정의 (ON 모드의 툴팁과 완벽하게 일치)
+    const scenarioData = {
+        cafe: {
+            title: "맞춤형 커피 주문",
+            desc: "아이스 아메리카노 1잔을 선택하고,<br><span class='text-blue-600'>'샷 추가, 얼음 적게, 귀리 우유로 변경'</span><br>옵션을 모두 체크한 뒤 결제하세요."
+        },
+        burger: {
+            title: "기본 세트 유지하기",
+            desc: "불고기 버거 세트 주문 중 직원이 사이즈 업그레이드를 권유합니다.<br>현혹되지 말고 <span class='text-blue-600'>'아니오(기본 세트 유지)'</span>를 선택하여 결제하세요."
+        },
+        parking: {
+            title: "차량 번호 입력",
+            desc: "주차 요금 정산을 위해 차량 번호 뒷자리를 입력해야 합니다.<br>화면에서 숫자 <span class='text-blue-600'>'5'</span>를 찾아 누르세요."
+        }
+    };
+
     function startApp() {
         document.getElementById('intro-view').classList.add('hidden-view');
         document.getElementById('hud').classList.remove('hidden-view');
@@ -224,7 +246,7 @@
         document.getElementById('view-port').classList.remove('hidden-view');
     }
 
-    // 메인 타이머 시작
+    // 메인 타이머 관리 (버그 1 해결)
     function startMainTimer() {
         if(!isTimerRunning) {
             isTimerRunning = true;
@@ -234,8 +256,15 @@
             }, 1000);
         }
     }
+    
+    function resetAndStopMainTimer() {
+        clearInterval(mainTimer);
+        isTimerRunning = false;
+        time = 0;
+        document.getElementById('time-display').innerText = '0s';
+    }
 
-    // 모드 토글 (도움 ON/OFF)
+    // 모드 토글
     function updateMode() {
         const isHelpOn = document.getElementById('mode-toggle').checked;
         const viewport = document.getElementById('view-port');
@@ -254,30 +283,41 @@
         }
     }
 
-    // 오클릭/스트레스 점수 처리 (화면 번쩍임 효과 추가)
     function logFrustration(val) {
         frustration += val;
         const el = document.getElementById('score-display');
         el.innerText = frustration;
         
-        // HUD 숫자가 흔들림
         el.parentElement.classList.add('frustration-shake');
         setTimeout(() => el.parentElement.classList.remove('frustration-shake'), 400);
 
-        // 모바일 타격감을 위한 화면 테두리 붉은 번쩍임
         const container = document.getElementById('app-container');
         container.classList.add('flash-red');
         setTimeout(() => container.classList.remove('flash-red'), 500);
     }
 
-    // 화면 전환
-    function goView(viewId) {
-        startMainTimer();
+    // 시나리오 제시 화면 노출 (버그 2 해결)
+    function showScenario(taskId) {
+        currentActiveTask = taskId;
+        
+        document.querySelectorAll('.view-content').forEach(v => v.classList.add('hidden-view'));
+        document.getElementById('view-scenario').classList.remove('hidden-view');
+        
+        document.getElementById('scenario-title').innerText = "미션: " + scenarioData[taskId].title;
+        document.getElementById('scenario-desc').innerHTML = scenarioData[taskId].desc;
+    }
 
+    // 실제 키오스크 작업 시작 (시나리오 확인 후 버튼 클릭 시)
+    function startTask() {
+        // 타이머는 여기서 시작
+        startMainTimer();
+        goView(currentActiveTask);
+    }
+
+    function goView(viewId) {
         document.querySelectorAll('.view-content').forEach(v => v.classList.add('hidden-view'));
         document.getElementById('view-' + viewId).classList.remove('hidden-view');
         
-        // 스크롤 상단으로 초기화
         document.getElementById('view-port').scrollTop = 0;
         
         clearInterval(sessionTimer);
@@ -292,16 +332,16 @@
         }
     }
 
-    // 홈으로 리셋
+    // 홈으로 완전히 초기화 (버그 1 핵심 해결 지점)
     function goHome() {
+        resetAndStopMainTimer();
         frustration = 0;
-        time = 0;
         document.getElementById('score-display').innerText = '0';
-        document.getElementById('time-display').innerText = '0s';
-        goView('home');
+        
+        document.querySelectorAll('.view-content').forEach(v => v.classList.add('hidden-view'));
+        document.getElementById('view-home').classList.remove('hidden-view');
     }
 
-    // 세션 타이머
     function startSessionTimer(seconds) {
         timeLeft = seconds;
         updateTimerDisplay();
@@ -325,15 +365,16 @@
         });
     }
 
-    // 빈 공간 클릭 감지 (이벤트 위임)
+    // 빈 공간 클릭 감지
     document.getElementById('view-port').addEventListener('click', (e) => {
-        // 클릭 가능한 요소(.clickable, input 등)가 아닐 경우 감점
+        // view-scenario(미션 안내창)에서는 오클릭 감지 무시
+        if(!document.getElementById('view-scenario').classList.contains('hidden-view')) return;
+
         if(!e.target.closest('.clickable') && !e.target.classList.contains('help-tooltip') && e.target.id !== 'view-port') {
             logFrustration(5);
         }
     });
 
-    // 로컬 스토리지 데이터 비교 로직
     function saveAndCheckRecord() {
         const name = document.getElementById('user-name').value.trim();
         if(!name) { alert('이름을 입력해주세요.'); return; }
@@ -363,7 +404,7 @@
             } else if (timeDiff > 0) {
                 feedback = `실수는 비슷했지만 <strong>${timeDiff}초</strong> 더 빠르게 완료하셨습니다!`;
             } else {
-                feedback = `원래 조작에 능숙하시군요! 하지만 시니어에겐 이 팝업 가이드가 필수적입니다.`;
+                feedback = `원래 조작에 능숙하시군요! 하지만 시니어에겐 이 안내가 필수적입니다.`;
             }
 
             resultBox.innerHTML = `
