@@ -1,0 +1,191 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2685.3">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  </style>
+</head>
+<body>
+<p class="p1">&lt;!DOCTYPE html&gt;</p>
+<p class="p1">&lt;html lang="ko"&gt;</p>
+<p class="p1">&lt;head&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta charset="UTF-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;title&gt;Senior Experience Kiosk&lt;/title&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;style&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* 시니어 모드 전용 스타일 */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.senior-mode {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>filter: blur(0.6px) contrast(0.8);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-family: 'serif'; /* 가독성이 떨어지는 폰트 유도 */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.senior-mode button {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>cursor: pointer;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>transition: none;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.miss-click-area {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>position: absolute;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>inset: 0;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>z-index: 0;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.tiny-text { font-size: 0.65rem !important; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.hidden-step { display: none; }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/style&gt;</p>
+<p class="p1">&lt;/head&gt;</p>
+<p class="p1">&lt;body class="bg-gray-100 min-h-screen flex flex-col items-center p-4"&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="w-full max-w-md bg-white p-4 rounded-xl shadow-md mb-4 flex justify-between items-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;h1 class="font-bold text-lg"&gt;디지털 장벽 체험관&lt;/h1&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p class="text-xs text-gray-500"&gt;당신은 시니어의 마음을 이해할 수 있습니까?&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="flex flex-col items-end"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;span class="text-[10px] font-bold text-red-500"&gt;좌절 점수: &lt;span id="frustration-score"&gt;0&lt;/span&gt;&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;label class="relative inline-flex items-center cursor-pointer mt-1"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;input type="checkbox" id="mode-toggle" class="sr-only peer" checked onchange="toggleMode()"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;span class="ml-2 text-xs font-medium text-gray-900"&gt;불편함 ON&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="kiosk-screen" class="w-full max-w-md bg-white h-[600px] rounded-3xl shadow-2xl relative overflow-hidden border-8 border-gray-800 senior-mode"&gt;</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div id="step-main" class="p-6 h-full flex flex-col justify-center gap-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;h2 class="text-center font-bold mb-8"&gt;서비스를 선택하세요&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;button onclick="startApp('cafe')" class="w-full py-4 bg-gray-200 rounded hover:bg-gray-300 text-sm"&gt;BEVERAGE ORDER&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;button onclick="startApp('burger')" class="w-full py-4 bg-gray-200 rounded hover:bg-gray-300 text-sm"&gt;MEAL SET-UP&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;button onclick="startApp('parking')" class="w-full py-4 bg-gray-200 rounded hover:bg-gray-300 text-sm"&gt;VALET EXIT&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div id="step-cafe" class="hidden-step p-4 h-full flex flex-col"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="flex justify-between items-center mb-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;span class="tiny-text uppercase text-gray-400"&gt;Category: HOT/ICE/EXT&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;span id="timer" class="text-red-500 font-mono text-xs"&gt;10s&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="grid grid-cols-2 gap-2 mb-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="border p-2 text-center" onclick="addScore(5)"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="w-full h-20 bg-gray-100 mb-1"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;span class="tiny-text font-bold text-[8px]"&gt;AMR_H_GRD_V1&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p class="tiny-text text-blue-600"&gt;₩4,500&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="border p-2 text-center border-blue-500 ring-1 ring-blue-500" onclick="nextStep('cafe-opt')"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="w-full h-20 bg-gray-100 mb-1"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;span class="tiny-text font-bold text-[8px]"&gt;AMR_I_STD_V2&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p class="tiny-text text-blue-600"&gt;₩4,500&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p class="text-[9px] text-gray-400 text-center italic"&gt;※ 실제 이미지와 다를 수 있으며 위 이미지는 연출된 것입니다.&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div id="step-cafe-opt" class="hidden-step p-4 h-full"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;h3 class="tiny-text font-bold mb-4"&gt;PERSONAL OPTIONS (CHECK ALL)&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="space-y-2 mb-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;label class="flex items-center gap-2 border p-1"&gt;&lt;input type="checkbox" class="w-2 h-2"&gt; &lt;span class="tiny-text italic text-[8px]"&gt;ADD_ESPR_SHT (+500)&lt;/span&gt;&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;label class="flex items-center gap-2 border p-1"&gt;&lt;input type="checkbox" class="w-2 h-2"&gt; &lt;span class="tiny-text italic text-[8px]"&gt;LESS_ICE_STILL_COLD&lt;/span&gt;&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;label class="flex items-center gap-2 border p-1"&gt;&lt;input type="checkbox" class="w-2 h-2"&gt; &lt;span class="tiny-text italic text-[8px]"&gt;OAT_MLK_SUB (+800)&lt;/span&gt;&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;label class="flex items-center gap-2 border p-1"&gt;&lt;input type="checkbox" class="w-2 h-2"&gt; &lt;span class="tiny-text italic text-[8px]"&gt;ECO_CUP_DISC (-300)&lt;/span&gt;&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;button onclick="nextStep('complete')" class="w-full py-1 bg-black text-white text-[10px] tracking-widest"&gt;ORDER_CONFIRM_FINAL&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div id="step-parking" class="hidden-step p-8 h-full flex flex-col items-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p class="tiny-text mb-10 text-center"&gt;차량번호 4자리를 입력하세요&lt;br&gt;&lt;span class="text-gray-400"&gt;(ENTER YOUR VEHICLE DIGITS)&lt;/span&gt;&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="grid grid-cols-5 gap-1 mb-10"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;button onclick="addScore(2)" class="w-8 h-8 border text-[10px]"&gt;9&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;button onclick="addScore(2)" class="w-8 h-8 border text-[10px]"&gt;0&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;button onclick="addScore(2)" class="w-8 h-8 border text-[10px]"&gt;4&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;button onclick="addScore(2)" class="w-8 h-8 border text-[10px]"&gt;1&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;button onclick="addScore(2)" class="w-8 h-8 border text-[10px]"&gt;7&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;button onclick="addScore(2)" class="w-8 h-8 border text-[10px]"&gt;2&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;button onclick="addScore(2)" class="w-8 h-8 border text-[10px]"&gt;5&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;button onclick="nextStep('complete')" class="w-8 h-8 border text-[10px] bg-gray-50 font-bold"&gt;8&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;button onclick="addScore(2)" class="w-8 h-8 border text-[10px]"&gt;3&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;button onclick="addScore(2)" class="w-8 h-8 border text-[10px]"&gt;6&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p class="text-[8px] text-red-400"&gt;잔여 시간 내에 입력하지 않으면 초기화됩니다.&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div id="step-complete" class="hidden-step p-8 h-full flex flex-col items-center justify-center text-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4"&gt;✅&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;h2 class="font-bold text-sm mb-2"&gt;주문/정산이 완료되었습니다.&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p id="final-report" class="text-xs text-gray-600 mb-8 leading-relaxed"&gt;&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;button onclick="location.reload()" class="px-6 py-2 bg-blue-600 text-white text-xs rounded-full uppercase"&gt;Try Again&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div id="miss-click-overlay" class="miss-click-area" onclick="handleMissClick(event)"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let score = 0;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let timerInterval;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let timeLeft = 10;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function toggleMode() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const isSenior = document.getElementById('mode-toggle').checked;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const screen = document.getElementById('kiosk-screen');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if(isSenior) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>screen.classList.add('senior-mode');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>screen.classList.remove('senior-mode');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function addScore(val) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>score += val;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('frustration-score').innerText = score;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function handleMissClick(e) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>// 버튼이 아닌 영역 클릭 시</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if(e.target.id === 'miss-click-overlay') {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>addScore(10);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>alert("정확한 지점을 터치해 주세요. (Too far from target)");</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function startApp(type) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>nextStep('step-' + type);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>startTimer();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function nextStep(stepId) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>document.querySelectorAll('#kiosk-screen &gt; div').forEach(div =&gt; div.classList.add('hidden-step'));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById(stepId === 'complete' ? 'step-complete' : stepId).classList.remove('hidden-step');</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>if(stepId === 'complete') {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>clearInterval(timerInterval);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const isSenior = document.getElementById('mode-toggle').checked;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>let message = isSenior ?<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>`당신은 결제까지 ${score}점의 좌절을 겪었습니다. 이것은 누군가에게는 매일의 공포입니다.` :<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>"개선된 모드에서는 훨씬 빠르군요. 디자인의 힘입니다.";</p>
+<p class="p1"><span class="Apple-converted-space">                </span>document.getElementById('final-report').innerText = message;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function startTimer() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>clearInterval(timerInterval);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>timeLeft = 10;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>timerInterval = setInterval(() =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>timeLeft--;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const timerEl = document.getElementById('timer');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if(timerEl) timerEl.innerText = timeLeft + 's';</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>if(timeLeft &lt;= 0) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>clearInterval(timerInterval);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>alert("시간이 초과되어 처음으로 돌아갑니다. (Session Expired)");</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>location.reload();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}, 1000);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/script&gt;</p>
+<p class="p1">&lt;/body&gt;</p>
+<p class="p1">&lt;/html&gt;</p>
+</body>
+</html>
