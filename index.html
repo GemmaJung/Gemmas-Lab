@@ -2,403 +2,399 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Digital Inclusion - 시니어 키오스크 체험</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Pretendard', sans-serif; scroll-behavior: smooth; }
+        body { font-family: 'Pretendard', sans-serif; background-color: #f1f5f9; margin: 0; overflow: hidden; touch-action: manipulation; }
         
-        /* 공통 텍스트 (기본: 보통 크기) */
-        .kiosk-text { font-size: 1rem; line-height: 1.5; transition: font-size 0.3s ease; }
+        /* 모바일 컨테이너 최적화 */
+        #app-container { max-width: 480px; margin: 0 auto; height: 100dvh; background: #fff; display: flex; flex-direction: column; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
+
+        /* 공통 텍스트 */
+        .kiosk-text { font-size: 1rem; line-height: 1.4; transition: all 0.3s ease; }
         .kiosk-title { font-size: 1.125rem; font-weight: bold; }
         .kiosk-small { font-size: 0.875rem; }
 
         /* --- 도움 OFF 모드 (시니어의 현실) --- */
-        .help-off-mode { filter: blur(1px) contrast(0.9); }
-        .help-off-mode .help-tooltip { display: none !important; } /* 가이드 숨김 */
+        .help-off-mode { filter: blur(1.2px) contrast(0.85); }
+        .help-off-mode .help-tooltip { display: none !important; } 
+        .help-off-mode .btn-target { padding: 12px; }
         
         /* --- 도움 ON 모드 (개선된 UI) --- */
         .help-on-mode { filter: none; }
-        /* 폰트 크기 매우 크게 확대 */
-        .help-on-mode .kiosk-text { font-size: 1.35rem; font-weight: 800; }
-        .help-on-mode .kiosk-title { font-size: 1.5rem; font-weight: 900; }
+        .help-on-mode .kiosk-text { font-size: 1.35rem; font-weight: 800; letter-spacing: -0.5px; }
+        .help-on-mode .kiosk-title { font-size: 1.6rem; font-weight: 900; }
         .help-on-mode .kiosk-small { font-size: 1.125rem; font-weight: 700; }
-        .help-on-mode .btn-target { padding: 16px; border-width: 2px; border-color: #3b82f6; }
+        .help-on-mode .btn-target { padding: 20px; border-width: 3px; border-color: #3b82f6; }
         
         /* 플로팅 팝업 (도움 가이드) */
         .help-tooltip {
-            display: none;
-            position: absolute;
-            top: -38px; left: 50%; transform: translateX(-50%);
-            background: #ef4444; color: white;
-            padding: 6px 12px; border-radius: 8px;
+            display: none; position: absolute; bottom: 100%; left: 50%; transform: translate(-50%, -8px);
+            background: #ef4444; color: white; padding: 6px 14px; border-radius: 20px;
             font-size: 14px; font-weight: bold; white-space: nowrap;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            animation: bounce 1s infinite;
-            pointer-events: none; /* 클릭 방해 금지 */
-            z-index: 50;
+            box-shadow: 0 4px 10px rgba(239, 68, 68, 0.4);
+            animation: bounce 1s infinite; pointer-events: none; z-index: 50;
         }
         .help-tooltip::after {
-            content: ''; position: absolute; top: 100%; left: 50%;
-            margin-left: -5px; border-width: 5px; border-style: solid;
-            border-color: #ef4444 transparent transparent transparent;
+            content: ''; position: absolute; top: 100%; left: 50%; margin-left: -6px;
+            border-width: 6px; border-style: solid; border-color: #ef4444 transparent transparent transparent;
         }
         .help-on-mode .help-tooltip { display: block; }
 
+        /* UI 상태 클래스 */
         .hidden-view { display: none !important; }
-        .frustration-shake { animation: shake 0.4s; }
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
         
-        .kiosk-btn { width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; transition: all 0.2s; cursor: pointer; text-align: center; position: relative; }
+        /* 애니메이션 */
+        .frustration-shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes shake { 10%, 90% { transform: translate3d(-2px, 0, 0); } 20%, 80% { transform: translate3d(4px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-8px, 0, 0); } 40%, 60% { transform: translate3d(8px, 0, 0); } }
+        
+        .flash-red { animation: flash 0.5s ease-out; }
+        @keyframes flash { 0% { box-shadow: inset 0 0 0 8px rgba(239,68,68,0.8); } 100% { box-shadow: inset 0 0 0 0 rgba(239,68,68,0); } }
+
+        .kiosk-btn { width: 100%; border: 1px solid #cbd5e1; border-radius: 12px; cursor: pointer; text-align: center; position: relative; background: #fff; }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-900">
+<body>
 
-    <header class="min-h-screen flex flex-col items-center justify-center text-center px-4 bg-white">
-        <div class="px-4 py-1.5 mb-6 text-sm font-bold text-blue-600 bg-blue-50 rounded-full uppercase tracking-widest">Digital Inclusion Project</div>
-        <h1 class="text-4xl md:text-5xl font-extrabold mb-6 leading-tight">키오스크, <span class="text-blue-600">친절한 안내</span>가 있다면<br>얼마나 달라질까요?</h1>
-        <div class="text-slate-600 mb-10 max-w-xl mx-auto leading-relaxed bg-slate-50 p-6 rounded-2xl border border-slate-100 text-left">
-            <h3 class="font-bold text-slate-800 mb-3 text-center">💡 올바른 체험 순서</h3>
-            <ol class="list-decimal list-inside space-y-2 text-sm">
-                <li>먼저 우측 상단의 <strong>[도움 OFF]</strong> 상태로 끝까지 결제를 마칩니다.</li>
-                <li>결과 화면에서 <strong>이름을 입력하고 기록을 저장</strong>합니다.</li>
-                <li>다시 첫 화면으로 돌아와 <strong>[도움 ON]</strong>으로 스위치를 켭니다.</li>
-                <li>가이드에 따라 결제를 마치고 <strong>동일한 이름</strong>으로 저장하여 차이를 확인하세요.</li>
+<div id="app-container">
+    
+    <div id="intro-view" class="absolute inset-0 z-50 bg-white flex flex-col justify-center items-center p-6 text-center">
+        <div class="px-3 py-1 mb-6 text-xs font-bold text-blue-600 bg-blue-50 rounded-full">Digital Inclusion Project</div>
+        <h1 class="text-3xl font-extrabold mb-4 leading-tight">키오스크,<br><span class="text-blue-600">친절한 안내</span>가 있다면<br>얼마나 달라질까요?</h1>
+        <div class="text-left bg-slate-50 p-5 rounded-2xl w-full mb-8 border border-slate-100 shadow-sm">
+            <h3 class="font-bold text-slate-800 mb-3 text-center">💡 체험 방법</h3>
+            <ol class="list-decimal list-inside space-y-2 text-sm text-slate-600">
+                <li>처음엔 <strong>[도움 OFF]</strong> 상태로 결제를 마칩니다.</li>
+                <li>이름을 입력해 <strong>기록을 저장</strong>합니다.</li>
+                <li>다시 첫 화면에서 <strong>[도움 ON]</strong>을 켭니다.</li>
+                <li>안내를 따라 결제하고 <strong>변화를 비교</strong>하세요.</li>
             </ol>
         </div>
-        <a href="#simulator" class="px-10 py-4 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition-colors">체험 시작하기</a>
-    </header>
+        <button onclick="startApp()" class="w-full py-4 bg-slate-900 text-white rounded-2xl font-bold text-lg hover:bg-slate-800">체험 시작하기</button>
+    </div>
 
-    <section id="simulator" class="py-20 bg-slate-100 min-h-screen flex items-center">
-        <div class="max-w-5xl mx-auto px-4 grid lg:grid-cols-2 gap-12 items-center w-full">
-            
-            <div class="space-y-6">
-                <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 relative overflow-hidden">
-                    <h3 class="font-bold text-xl mb-6 flex items-center gap-2">📊 실시간 분석 시스템</h3>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="p-4 bg-red-50 rounded-2xl border border-red-100">
-                            <p class="text-xs text-red-500 font-bold mb-1 uppercase tracking-wider">스트레스 지수 (오클릭)</p>
-                            <p class="text-4xl font-black text-red-600" id="score-display">0</p>
-                        </div>
-                        <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                            <p class="text-xs text-slate-500 font-bold mb-1 uppercase tracking-wider">소요 시간</p>
-                            <p class="text-4xl font-black text-slate-800" id="time-display">0s</p>
-                        </div>
-                    </div>
-                </div>
+    <div id="hud" class="hidden-view bg-slate-900 text-white flex justify-between items-center px-4 py-3 z-40 shadow-md">
+        <div class="flex flex-col">
+            <span class="text-[10px] text-slate-400 font-bold tracking-wider">스트레스 지수 (오클릭)</span>
+            <span class="text-2xl font-black text-red-400" id="score-display">0</span>
+        </div>
+        <div class="flex flex-col text-right">
+            <span class="text-[10px] text-slate-400 font-bold tracking-wider">소요 시간</span>
+            <span class="text-2xl font-black" id="time-display">0s</span>
+        </div>
+    </div>
+
+    <div id="kiosk-header" class="hidden-view bg-blue-50 px-4 py-3 flex justify-between items-center border-b border-blue-100 z-30">
+        <span class="text-xs font-bold text-blue-800">키오스크 도우미</span>
+        <div class="flex items-center gap-2">
+            <span class="text-sm font-bold text-slate-500" id="mode-label">도움 OFF</span>
+            <label class="relative inline-flex items-center cursor-pointer clickable">
+                <input type="checkbox" id="mode-toggle" class="sr-only peer" onchange="updateMode()">
+                <div class="w-12 h-7 bg-slate-300 rounded-full peer peer-checked:bg-blue-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:after:translate-x-full"></div>
+            </label>
+        </div>
+    </div>
+
+    <div id="view-port" class="hidden-view flex-1 relative flex flex-col overflow-y-auto bg-white help-off-mode p-4">
+        
+        <div id="view-home" class="view-content h-full flex flex-col justify-center gap-4">
+            <h2 class="text-center mb-6 kiosk-title">어떤 작업을 원하시나요?</h2>
+            <button onclick="goView('cafe')" class="clickable kiosk-btn py-5 hover:bg-slate-50 btn-target">
+                <div class="help-tooltip">여기를 눌러 커피를 주문하세요!</div>
+                <span class="kiosk-text">1. 카페 음료 주문하기</span>
+            </button>
+            <button onclick="goView('burger')" class="clickable kiosk-btn py-5 hover:bg-slate-50 btn-target mt-2">
+                <div class="help-tooltip">여기를 눌러 햄버거를 주문하세요!</div>
+                <span class="kiosk-text">2. 햄버거 세트 주문하기</span>
+            </button>
+            <button onclick="goView('parking')" class="clickable kiosk-btn py-5 hover:bg-slate-50 btn-target mt-2">
+                <div class="help-tooltip">여기를 눌러 정산하세요!</div>
+                <span class="kiosk-text">3. 주차 요금 정산하기</span>
+            </button>
+        </div>
+
+        <div id="view-cafe" class="view-content hidden-view h-full flex flex-col">
+            <div class="flex justify-between items-center mb-6 border-b pb-2">
+                <span class="kiosk-small text-slate-500 font-bold">메뉴 > 커피</span>
+                <span class="session-timer text-red-500 font-mono font-bold kiosk-small">15s</span>
             </div>
-
-            <div class="relative mx-auto">
-                <div class="w-[360px] h-[720px] bg-slate-900 rounded-[3rem] p-3 shadow-2xl border-[8px] border-slate-800 relative">
-                    <div class="absolute top-8 left-1/2 -translate-x-1/2 w-16 h-1.5 bg-slate-800 rounded-full"></div>
-                    
-                    <div id="kiosk-screen" class="w-full h-full bg-white rounded-[2.2rem] overflow-hidden flex flex-col help-off-mode">
-                        
-                        <div class="bg-blue-50 px-4 py-3 flex justify-between items-center border-b border-blue-100 z-10">
-                            <span class="text-xs font-bold text-blue-800">키오스크 도우미</span>
-                            <div class="flex items-center gap-2">
-                                <span class="text-sm font-bold text-blue-800" id="mode-label">도움 OFF</span>
-                                <label class="relative inline-flex items-center cursor-pointer clickable">
-                                    <input type="checkbox" id="mode-toggle" class="sr-only peer" onchange="updateMode()">
-                                    <div class="w-11 h-6 bg-slate-300 rounded-full peer peer-checked:bg-blue-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full"></div>
-                                </label>
-                            </div>
-                        </div>
-
-                        <div id="view-port" class="flex-1 relative p-5 flex flex-col overflow-y-auto bg-white">
-                            
-                            <div id="view-home" class="view-content h-full flex flex-col justify-center gap-4">
-                                <h2 class="text-center font-bold mb-6 kiosk-title">어떤 작업을 원하시나요?</h2>
-                                <button onclick="goView('cafe')" class="clickable kiosk-btn py-5 hover:bg-slate-50 btn-target relative">
-                                    <div class="help-tooltip">여기를 눌러 커피를 주문하세요!</div>
-                                    <span class="kiosk-text">1. 카페 음료 주문하기</span>
-                                </button>
-                                <button onclick="goView('burger')" class="clickable kiosk-btn py-5 hover:bg-slate-50 btn-target relative">
-                                    <div class="help-tooltip">여기를 눌러 햄버거를 주문하세요!</div>
-                                    <span class="kiosk-text">2. 햄버거 세트 주문하기</span>
-                                </button>
-                                <button onclick="goView('parking')" class="clickable kiosk-btn py-5 hover:bg-slate-50 btn-target relative">
-                                    <div class="help-tooltip">여기를 눌러 정산하세요!</div>
-                                    <span class="kiosk-text">3. 주차 요금 정산하기</span>
-                                </button>
-                            </div>
-
-                            <div id="view-cafe" class="view-content hidden-view h-full flex flex-col">
-                                <div class="flex justify-between items-center mb-6 border-b pb-2">
-                                    <span class="kiosk-small text-slate-500 font-bold">메뉴 > 커피</span>
-                                    <span class="session-timer text-red-500 font-mono font-bold kiosk-small">15s</span>
-                                </div>
-                                <div class="grid grid-cols-2 gap-3 mb-4">
-                                    <div onclick="goView('cafe-opt')" class="clickable border p-3 rounded-xl text-center btn-target relative bg-slate-50 hover:bg-blue-50">
-                                        <div class="help-tooltip">이 버튼을 누르세요!</div>
-                                        <div class="w-full aspect-square bg-white rounded mb-2 border"></div>
-                                        <p class="kiosk-text">아이스 아메리카노</p>
-                                        <p class="kiosk-small text-blue-600 mt-1">4,500원</p>
-                                    </div>
-                                    <div onclick="logFrustration(10)" class="clickable border p-3 rounded-xl text-center btn-target relative bg-slate-50">
-                                        <div class="w-full aspect-square bg-white rounded mb-2 border"></div>
-                                        <p class="kiosk-text">따뜻한 아메리카노</p>
-                                        <p class="kiosk-small text-blue-600 mt-1">4,500원</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div id="view-cafe-opt" class="view-content hidden-view h-full flex flex-col">
-                                <h2 class="kiosk-title mb-4 border-b pb-2">추가 옵션을 선택하세요</h2>
-                                <div class="space-y-3 flex-1">
-                                    <label class="clickable flex justify-between items-center p-3 border border-slate-200 rounded-xl btn-target"><span class="kiosk-text">샷 추가 (+500원)</span><input type="checkbox" class="w-5 h-5"></label>
-                                    <label class="clickable flex justify-between items-center p-3 border border-slate-200 rounded-xl btn-target"><span class="kiosk-text">얼음 적게</span><input type="checkbox" class="w-5 h-5"></label>
-                                    <label class="clickable flex justify-between items-center p-3 border border-slate-200 rounded-xl btn-target"><span class="kiosk-text">귀리 우유로 변경 (+800원)</span><input type="checkbox" class="w-5 h-5"></label>
-                                </div>
-                                <button onclick="goView('done')" class="clickable w-full py-4 bg-slate-900 text-white rounded-xl mt-4 relative">
-                                    <div class="help-tooltip">다 골랐다면 결제하기 클릭!</div>
-                                    <span class="kiosk-text">결제하기</span>
-                                </button>
-                            </div>
-
-                            <div id="view-burger" class="view-content hidden-view h-full flex flex-col">
-                                <div class="flex justify-between items-center mb-4 border-b pb-2">
-                                    <span class="kiosk-small text-slate-500 font-bold">세트 구성</span>
-                                    <span class="session-timer text-red-500 font-mono font-bold kiosk-small">15s</span>
-                                </div>
-                                <div class="flex-1 flex flex-col justify-center items-center text-center gap-4">
-                                    <h2 class="kiosk-title">불고기 버거 세트</h2>
-                                    <p class="kiosk-text text-slate-600 mb-4">감자튀김과 콜라를 라지 사이즈로<br>업그레이드 하시겠습니까?</p>
-                                    
-                                    <button onclick="logFrustration(15)" class="clickable w-full py-6 bg-red-600 text-white rounded-xl shadow-lg btn-target relative">
-                                        <span class="kiosk-text font-bold">네! 라지 세트로 변경 (+1,500원)</span>
-                                    </button>
-                                    <button onclick="goView('done')" class="clickable w-full py-3 bg-slate-100 text-slate-600 rounded-xl mt-4 btn-target relative">
-                                        <div class="help-tooltip">원치 않으면 여기를 누르세요!</div>
-                                        <span class="kiosk-text">아니오 (기본 세트 유지)</span>
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div id="view-parking" class="view-content hidden-view h-full flex flex-col">
-                                <div class="flex justify-between items-center mb-6 border-b pb-2">
-                                    <span class="kiosk-small text-slate-500 font-bold">차량 번호 검색</span>
-                                    <span class="session-timer text-red-500 font-mono font-bold kiosk-small">15s</span>
-                                </div>
-                                <p class="kiosk-title text-center mb-8">차량 번호 뒤 4자리를<br>입력해 주세요.</p>
-                                
-                                <div class="grid grid-cols-3 gap-2 mb-8 px-4">
-                                    <button onclick="logFrustration(2)" class="clickable border rounded-xl py-4 bg-slate-50 kiosk-text font-bold">9</button>
-                                    <button onclick="logFrustration(2)" class="clickable border rounded-xl py-4 bg-slate-50 kiosk-text font-bold">4</button>
-                                    <button onclick="logFrustration(2)" class="clickable border rounded-xl py-4 bg-slate-50 kiosk-text font-bold">7</button>
-                                    <button onclick="logFrustration(2)" class="clickable border rounded-xl py-4 bg-slate-50 kiosk-text font-bold">1</button>
-                                    <button onclick="goView('done')" class="clickable border rounded-xl py-4 bg-blue-100 border-blue-300 kiosk-text font-bold text-blue-700 relative">
-                                        <div class="help-tooltip">여기를 눌러 완료하세요!</div>
-                                        5
-                                    </button>
-                                    <button onclick="logFrustration(2)" class="clickable border rounded-xl py-4 bg-slate-50 kiosk-text font-bold">0</button>
-                                    <button onclick="logFrustration(2)" class="clickable border rounded-xl py-4 bg-slate-50 kiosk-text font-bold">2</button>
-                                    <button onclick="logFrustration(2)" class="clickable border rounded-xl py-4 bg-slate-50 kiosk-text font-bold">8</button>
-                                    <button onclick="logFrustration(2)" class="clickable border rounded-xl py-4 bg-slate-50 kiosk-text font-bold">3</button>
-                                </div>
-                            </div>
-
-                            <div id="view-done" class="view-content hidden-view h-full flex flex-col items-center justify-center text-center">
-                                <div class="text-6xl mb-4">🎉</div>
-                                <h2 class="font-bold text-xl mb-6">결제가 완료되었습니다</h2>
-                                
-                                <div id="save-area" class="w-full bg-slate-50 p-5 rounded-2xl border border-slate-200 mb-6">
-                                    <p class="text-sm font-bold text-slate-700 mb-3">비교를 위해 이름을 입력하고 저장하세요.</p>
-                                    <input type="text" id="user-name" placeholder="이름 (예: 홍길동)" class="clickable w-full p-3 border rounded-xl text-center mb-3">
-                                    <button onclick="saveAndCheckRecord()" class="clickable w-full py-3 bg-blue-600 text-white rounded-xl font-bold">기록 저장하기</button>
-                                </div>
-
-                                <div id="comparison-result" class="w-full"></div>
-
-                                <button id="restart-btn" onclick="goHome()" class="clickable hidden-view px-6 py-3 bg-slate-900 text-white text-sm font-bold rounded-xl mt-4 w-full">첫 화면으로 돌아가기</button>
-                            </div>
-
-                        </div>
-                    </div>
+            <div class="grid grid-cols-2 gap-3 mb-4">
+                <div onclick="goView('cafe-opt')" class="clickable kiosk-btn p-3 bg-slate-50 btn-target">
+                    <div class="help-tooltip">이 버튼을 누르세요!</div>
+                    <div class="w-full aspect-square bg-white rounded-lg mb-2 border"></div>
+                    <p class="kiosk-text">아이스 아메리카노</p>
+                    <p class="kiosk-small text-blue-600 mt-1">4,500원</p>
+                </div>
+                <div onclick="logFrustration(10)" class="clickable kiosk-btn p-3 bg-slate-50 btn-target">
+                    <div class="w-full aspect-square bg-white rounded-lg mb-2 border"></div>
+                    <p class="kiosk-text">따뜻한 아메리카노</p>
+                    <p class="kiosk-small text-blue-600 mt-1">4,500원</p>
                 </div>
             </div>
         </div>
-    </section>
 
-    <script>
-        let frustration = 0;
-        let time = 0;
-        let mainTimer;
-        let sessionTimer;
-        let timeLeft = 15;
-        let isTimerRunning = false;
+        <div id="view-cafe-opt" class="view-content hidden-view h-full flex flex-col">
+            <h2 class="kiosk-title mb-4 border-b pb-2">추가 옵션을 선택하세요</h2>
+            <div class="space-y-3 flex-1">
+                <label class="clickable flex justify-between items-center p-4 border border-slate-200 rounded-xl btn-target bg-white"><span class="kiosk-text">샷 추가 (+500원)</span><input type="checkbox" class="w-6 h-6"></label>
+                <label class="clickable flex justify-between items-center p-4 border border-slate-200 rounded-xl btn-target bg-white"><span class="kiosk-text">얼음 적게</span><input type="checkbox" class="w-6 h-6"></label>
+                <label class="clickable flex justify-between items-center p-4 border border-slate-200 rounded-xl btn-target bg-white"><span class="kiosk-text">귀리 우유로 변경 (+800원)</span><input type="checkbox" class="w-6 h-6"></label>
+            </div>
+            <button onclick="goView('done')" class="clickable w-full py-5 bg-slate-900 text-white rounded-2xl mt-4 relative">
+                <div class="help-tooltip">다 골랐다면 결제하기 클릭!</div>
+                <span class="kiosk-text">결제하기</span>
+            </button>
+        </div>
 
-        // 메인 타이머 시작 함수
-        function startMainTimer() {
-            if(!isTimerRunning) {
-                isTimerRunning = true;
-                mainTimer = setInterval(() => {
-                    time++;
-                    document.getElementById('time-display').innerText = time + 's';
-                }, 1000);
-            }
-        }
-
-        // 도움 모드 토글 (화면 UI 실시간 변경)
-        function updateMode() {
-            const isHelpOn = document.getElementById('mode-toggle').checked;
-            const screen = document.getElementById('kiosk-screen');
-            const label = document.getElementById('mode-label');
-            
-            if(isHelpOn) {
-                screen.classList.remove('help-off-mode');
-                screen.classList.add('help-on-mode');
-                label.innerText = "도움 ON";
-                label.classList.replace('text-slate-500', 'text-blue-800');
-            } else {
-                screen.classList.remove('help-on-mode');
-                screen.classList.add('help-off-mode');
-                label.innerText = "도움 OFF";
-                label.classList.replace('text-blue-800', 'text-slate-500');
-            }
-        }
-
-        // 스트레스(좌절) 점수 증가
-        function logFrustration(val) {
-            frustration += val;
-            const el = document.getElementById('score-display');
-            el.innerText = frustration;
-            el.parentElement.classList.add('frustration-shake');
-            setTimeout(() => el.parentElement.classList.remove('frustration-shake'), 400);
-        }
-
-        // 화면 전환 로직
-        function goView(viewId) {
-            startMainTimer(); // 첫 클릭 시 시간 측정 시작
-
-            document.querySelectorAll('.view-content').forEach(v => v.classList.add('hidden-view'));
-            document.getElementById('view-' + viewId).classList.remove('hidden-view');
-            
-            clearInterval(sessionTimer);
-            if(['cafe', 'burger', 'parking'].includes(viewId)) {
-                startSessionTimer(15);
-            } else if (viewId === 'done') {
-                clearInterval(mainTimer);
-                isTimerRunning = false;
-                document.getElementById('save-area').style.display = 'block';
-                document.getElementById('restart-btn').classList.add('hidden-view');
-                document.getElementById('comparison-result').innerHTML = ''; // 결과창 초기화
-            }
-        }
-
-        // 첫 화면으로 리셋 (변수 초기화 포함)
-        function goHome() {
-            frustration = 0;
-            time = 0;
-            document.getElementById('score-display').innerText = '0';
-            document.getElementById('time-display').innerText = '0s';
-            goView('home');
-        }
-
-        // 세션(화면별) 제한 시간 로직
-        function startSessionTimer(seconds) {
-            timeLeft = seconds;
-            updateTimerDisplay();
-            
-            sessionTimer = setInterval(() => {
-                timeLeft--;
-                updateTimerDisplay();
+        <div id="view-burger" class="view-content hidden-view h-full flex flex-col">
+            <div class="flex justify-between items-center mb-4 border-b pb-2">
+                <span class="kiosk-small text-slate-500 font-bold">세트 구성</span>
+                <span class="session-timer text-red-500 font-mono font-bold kiosk-small">15s</span>
+            </div>
+            <div class="flex-1 flex flex-col justify-center items-center text-center gap-4">
+                <h2 class="kiosk-title">불고기 버거 세트</h2>
+                <p class="kiosk-text text-slate-600 mb-6">감자튀김과 콜라를 라지 사이즈로<br>업그레이드 하시겠습니까?</p>
                 
-                if(timeLeft <= 0) {
-                    clearInterval(sessionTimer);
-                    alert("시간이 초과되었습니다. 처음으로 돌아갑니다.");
-                    goHome();
-                }
+                <button onclick="logFrustration(15)" class="clickable w-full py-6 bg-red-600 text-white rounded-2xl shadow-lg btn-target relative mb-2">
+                    <span class="kiosk-text font-bold">네! 라지 세트로 변경 (+1,500원)</span>
+                </button>
+                <button onclick="goView('done')" class="clickable w-full py-4 bg-slate-100 text-slate-600 rounded-2xl btn-target relative border border-slate-300">
+                    <div class="help-tooltip">원치 않으면 여기를 누르세요!</div>
+                    <span class="kiosk-text">아니오 (기본 세트 유지)</span>
+                </button>
+            </div>
+        </div>
+
+        <div id="view-parking" class="view-content hidden-view h-full flex flex-col">
+            <div class="flex justify-between items-center mb-6 border-b pb-2">
+                <span class="kiosk-small text-slate-500 font-bold">차량 번호 검색</span>
+                <span class="session-timer text-red-500 font-mono font-bold kiosk-small">15s</span>
+            </div>
+            <p class="kiosk-title text-center mb-8">차량 번호 뒤 4자리를<br>입력해 주세요.</p>
+            
+            <div class="grid grid-cols-3 gap-3 mb-8 px-2">
+                <button onclick="logFrustration(2)" class="clickable kiosk-btn py-5 bg-slate-50 kiosk-text font-bold text-xl">9</button>
+                <button onclick="logFrustration(2)" class="clickable kiosk-btn py-5 bg-slate-50 kiosk-text font-bold text-xl">4</button>
+                <button onclick="logFrustration(2)" class="clickable kiosk-btn py-5 bg-slate-50 kiosk-text font-bold text-xl">7</button>
+                <button onclick="logFrustration(2)" class="clickable kiosk-btn py-5 bg-slate-50 kiosk-text font-bold text-xl">1</button>
+                <button onclick="goView('done')" class="clickable kiosk-btn py-5 bg-blue-100 border-blue-300 kiosk-text font-bold text-blue-700 text-xl relative">
+                    <div class="help-tooltip">여기를 눌러 완료하세요!</div>
+                    5
+                </button>
+                <button onclick="logFrustration(2)" class="clickable kiosk-btn py-5 bg-slate-50 kiosk-text font-bold text-xl">0</button>
+                <button onclick="logFrustration(2)" class="clickable kiosk-btn py-5 bg-slate-50 kiosk-text font-bold text-xl">2</button>
+                <button onclick="logFrustration(2)" class="clickable kiosk-btn py-5 bg-slate-50 kiosk-text font-bold text-xl">8</button>
+                <button onclick="logFrustration(2)" class="clickable kiosk-btn py-5 bg-slate-50 kiosk-text font-bold text-xl">3</button>
+            </div>
+        </div>
+
+        <div id="view-done" class="view-content hidden-view h-full flex flex-col items-center justify-center text-center pb-10">
+            <div class="text-6xl mb-4">🎉</div>
+            <h2 class="font-bold text-2xl mb-6">결제 완료</h2>
+            
+            <div id="save-area" class="w-full bg-slate-50 p-6 rounded-2xl border border-slate-200 mb-6 shadow-sm">
+                <p class="text-sm font-bold text-slate-700 mb-4">비교를 위해 이름을 입력하고 저장하세요.</p>
+                <input type="text" id="user-name" placeholder="이름 입력 (예: 홍길동)" class="clickable w-full p-4 border rounded-xl text-center mb-4 text-lg">
+                <button onclick="saveAndCheckRecord()" class="clickable w-full py-4 bg-blue-600 text-white rounded-xl font-bold text-lg shadow-md">기록 저장하기</button>
+            </div>
+
+            <div id="comparison-result" class="w-full"></div>
+
+            <button id="restart-btn" onclick="goHome()" class="clickable hidden-view px-6 py-4 bg-slate-900 text-white font-bold rounded-xl mt-6 w-full text-lg shadow-md">첫 화면으로 돌아가기</button>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    let frustration = 0;
+    let time = 0;
+    let mainTimer;
+    let sessionTimer;
+    let timeLeft = 15;
+    let isTimerRunning = false;
+
+    // 앱 시작 (인트로 닫기)
+    function startApp() {
+        document.getElementById('intro-view').classList.add('hidden-view');
+        document.getElementById('hud').classList.remove('hidden-view');
+        document.getElementById('kiosk-header').classList.remove('hidden-view');
+        document.getElementById('view-port').classList.remove('hidden-view');
+    }
+
+    // 메인 타이머 시작
+    function startMainTimer() {
+        if(!isTimerRunning) {
+            isTimerRunning = true;
+            mainTimer = setInterval(() => {
+                time++;
+                document.getElementById('time-display').innerText = time + 's';
             }, 1000);
         }
+    }
 
-        function updateTimerDisplay() {
-            document.querySelectorAll('.session-timer').forEach(el => {
-                if(!el.closest('.hidden-view')) {
-                    el.innerText = timeLeft + 's';
-                }
-            });
+    // 모드 토글 (도움 ON/OFF)
+    function updateMode() {
+        const isHelpOn = document.getElementById('mode-toggle').checked;
+        const viewport = document.getElementById('view-port');
+        const label = document.getElementById('mode-label');
+        
+        if(isHelpOn) {
+            viewport.classList.remove('help-off-mode');
+            viewport.classList.add('help-on-mode');
+            label.innerText = "도움 ON";
+            label.classList.replace('text-slate-500', 'text-blue-800');
+        } else {
+            viewport.classList.remove('help-on-mode');
+            viewport.classList.add('help-off-mode');
+            label.innerText = "도움 OFF";
+            label.classList.replace('text-blue-800', 'text-slate-500');
         }
+    }
 
-        // 빈 공간 클릭 감지 (툴팁 등 클릭 방지용 요소 제외)
-        document.getElementById('view-port').addEventListener('click', (e) => {
-            if(!e.target.closest('.clickable') && !e.target.classList.contains('help-tooltip')) {
-                logFrustration(5);
+    // 오클릭/스트레스 점수 처리 (화면 번쩍임 효과 추가)
+    function logFrustration(val) {
+        frustration += val;
+        const el = document.getElementById('score-display');
+        el.innerText = frustration;
+        
+        // HUD 숫자가 흔들림
+        el.parentElement.classList.add('frustration-shake');
+        setTimeout(() => el.parentElement.classList.remove('frustration-shake'), 400);
+
+        // 모바일 타격감을 위한 화면 테두리 붉은 번쩍임
+        const container = document.getElementById('app-container');
+        container.classList.add('flash-red');
+        setTimeout(() => container.classList.remove('flash-red'), 500);
+    }
+
+    // 화면 전환
+    function goView(viewId) {
+        startMainTimer();
+
+        document.querySelectorAll('.view-content').forEach(v => v.classList.add('hidden-view'));
+        document.getElementById('view-' + viewId).classList.remove('hidden-view');
+        
+        // 스크롤 상단으로 초기화
+        document.getElementById('view-port').scrollTop = 0;
+        
+        clearInterval(sessionTimer);
+        if(['cafe', 'burger', 'parking'].includes(viewId)) {
+            startSessionTimer(15);
+        } else if (viewId === 'done') {
+            clearInterval(mainTimer);
+            isTimerRunning = false;
+            document.getElementById('save-area').style.display = 'block';
+            document.getElementById('restart-btn').classList.add('hidden-view');
+            document.getElementById('comparison-result').innerHTML = '';
+        }
+    }
+
+    // 홈으로 리셋
+    function goHome() {
+        frustration = 0;
+        time = 0;
+        document.getElementById('score-display').innerText = '0';
+        document.getElementById('time-display').innerText = '0s';
+        goView('home');
+    }
+
+    // 세션 타이머
+    function startSessionTimer(seconds) {
+        timeLeft = seconds;
+        updateTimerDisplay();
+        
+        sessionTimer = setInterval(() => {
+            timeLeft--;
+            updateTimerDisplay();
+            if(timeLeft <= 0) {
+                clearInterval(sessionTimer);
+                alert("입력 시간이 초과되었습니다. 처음으로 돌아갑니다.");
+                goHome();
+            }
+        }, 1000);
+    }
+
+    function updateTimerDisplay() {
+        document.querySelectorAll('.session-timer').forEach(el => {
+            if(!el.closest('.hidden-view')) {
+                el.innerText = timeLeft + 's';
             }
         });
+    }
 
-        // 로컬 스토리지에 기록 저장 및 두 모드 비교 연산
-        function saveAndCheckRecord() {
-            const name = document.getElementById('user-name').value.trim();
-            if(!name) { 
-                alert('이름을 입력해주세요.'); 
-                return; 
+    // 빈 공간 클릭 감지 (이벤트 위임)
+    document.getElementById('view-port').addEventListener('click', (e) => {
+        // 클릭 가능한 요소(.clickable, input 등)가 아닐 경우 감점
+        if(!e.target.closest('.clickable') && !e.target.classList.contains('help-tooltip') && e.target.id !== 'view-port') {
+            logFrustration(5);
+        }
+    });
+
+    // 로컬 스토리지 데이터 비교 로직
+    function saveAndCheckRecord() {
+        const name = document.getElementById('user-name').value.trim();
+        if(!name) { alert('이름을 입력해주세요.'); return; }
+
+        const isHelpOn = document.getElementById('mode-toggle').checked;
+        const modePrefix = isHelpOn ? 'on_' : 'off_';
+        
+        const record = { score: frustration, time: time };
+        localStorage.setItem(modePrefix + name, JSON.stringify(record));
+        
+        const offRecordStr = localStorage.getItem('off_' + name);
+        const onRecordStr = localStorage.getItem('on_' + name);
+        const resultBox = document.getElementById('comparison-result');
+        
+        if (offRecordStr && onRecordStr) {
+            const offRecord = JSON.parse(offRecordStr);
+            const onRecord = JSON.parse(onRecordStr);
+            
+            const scoreDiff = offRecord.score - onRecord.score;
+            const timeDiff = offRecord.time - onRecord.time;
+            
+            let feedback = "";
+            if(scoreDiff > 0 && timeDiff > 0) {
+                feedback = `도움이 주어졌을 때 <strong>${scoreDiff}번</strong> 덜 실수했고, <strong>${timeDiff}초</strong> 더 빨랐습니다!`;
+            } else if (scoreDiff > 0) {
+                feedback = `시간은 비슷했지만 <strong>${scoreDiff}번</strong> 덜 실수하셨습니다!`;
+            } else if (timeDiff > 0) {
+                feedback = `실수는 비슷했지만 <strong>${timeDiff}초</strong> 더 빠르게 완료하셨습니다!`;
+            } else {
+                feedback = `원래 조작에 능숙하시군요! 하지만 시니어에겐 이 팝업 가이드가 필수적입니다.`;
             }
 
-            const isHelpOn = document.getElementById('mode-toggle').checked;
-            const modePrefix = isHelpOn ? 'on_' : 'off_';
-            
-            // 현재 기록 저장
-            const record = { score: frustration, time: time };
-            localStorage.setItem(modePrefix + name, JSON.stringify(record));
-            
-            // 저장된 기록 불러오기
-            const offRecordStr = localStorage.getItem('off_' + name);
-            const onRecordStr = localStorage.getItem('on_' + name);
-            
-            const resultBox = document.getElementById('comparison-result');
-            
-            // 두 기록이 모두 존재할 경우 결과 비교
-            if (offRecordStr && onRecordStr) {
-                const offRecord = JSON.parse(offRecordStr);
-                const onRecord = JSON.parse(onRecordStr);
-                
-                const scoreDiff = offRecord.score - onRecord.score;
-                const timeDiff = offRecord.time - onRecord.time;
-                
-                let feedback = "";
-                if(scoreDiff > 0 && timeDiff > 0) {
-                    feedback = `도움이 주어졌을 때 <strong>${scoreDiff}점</strong> 덜 실수했고, <strong>${timeDiff}초</strong> 더 빠르게 완료하셨습니다!`;
-                } else if (scoreDiff > 0) {
-                    feedback = `도움이 주어졌을 때 시간은 비슷했지만 <strong>${scoreDiff}점</strong> 덜 실수하셨습니다!`;
-                } else if (timeDiff > 0) {
-                    feedback = `도움이 주어졌을 때 실수는 비슷했지만 <strong>${timeDiff}초</strong> 더 빠르게 완료하셨습니다!`;
-                } else {
-                    feedback = `원래부터 키오스크 조작에 매우 능숙하시군요! 하지만 시니어에게는 이 팝업 가이드가 필수적입니다.`;
-                }
-
-                resultBox.innerHTML = `
-                    <div class="p-5 bg-blue-50 border border-blue-200 rounded-2xl text-left">
-                        <h4 class="font-bold text-blue-800 mb-2">📊 ${name}님의 비교 결과</h4>
-                        <p class="text-sm text-slate-700 mb-3">${feedback}</p>
-                        <div class="grid grid-cols-2 gap-2 text-xs">
-                            <div class="p-2 bg-white rounded border text-center">
-                                <span class="block text-slate-400">도움 OFF</span>
-                                <span class="font-bold text-slate-700">${offRecord.score}점 / ${offRecord.time}초</span>
-                            </div>
-                            <div class="p-2 bg-white rounded border text-center">
-                                <span class="block text-blue-400">도움 ON</span>
-                                <span class="font-bold text-blue-700">${onRecord.score}점 / ${onRecord.time}초</span>
-                            </div>
+            resultBox.innerHTML = `
+                <div class="p-5 bg-blue-50 border border-blue-200 rounded-2xl text-left shadow-sm">
+                    <h4 class="font-bold text-blue-800 mb-3 text-lg">📊 ${name}님의 체험 결과</h4>
+                    <p class="text-slate-700 mb-4 leading-relaxed">${feedback}</p>
+                    <div class="grid grid-cols-2 gap-3 text-sm">
+                        <div class="p-3 bg-white rounded-xl border text-center">
+                            <span class="block text-slate-400 mb-1 font-bold">도움 OFF</span>
+                            <span class="text-lg font-black text-slate-700">${offRecord.score}점 / ${offRecord.time}초</span>
+                        </div>
+                        <div class="p-3 bg-white rounded-xl border text-center border-blue-200">
+                            <span class="block text-blue-500 mb-1 font-bold">도움 ON</span>
+                            <span class="text-lg font-black text-blue-700">${onRecord.score}점 / ${onRecord.time}초</span>
                         </div>
                     </div>
-                `;
-            } else {
-                // 하나만 기록되었을 경우
-                const nextMode = isHelpOn ? '도움 OFF' : '도움 ON';
-                resultBox.innerHTML = `
-                    <div class="p-4 bg-yellow-50 border border-yellow-200 rounded-2xl text-sm text-yellow-800">
-                        <strong>[${isHelpOn ? '도움 ON' : '도움 OFF'}]</strong> 기록이 저장되었습니다.<br>
-                        이제 우측 상단 스위치를 눌러 <strong>[${nextMode}]</strong> 상태로 다시 한 번 체험해보세요!
-                    </div>
-                `;
-            }
-            
-            // 입력창 숨기고 홈으로 가는 버튼 표시
-            document.getElementById('save-area').style.display = 'none';
-            document.getElementById('restart-btn').classList.remove('hidden-view');
+                </div>
+            `;
+        } else {
+            const nextMode = isHelpOn ? '도움 OFF' : '도움 ON';
+            resultBox.innerHTML = `
+                <div class="p-5 bg-yellow-50 border border-yellow-200 rounded-2xl text-yellow-800 shadow-sm text-left leading-relaxed">
+                    <strong>[${isHelpOn ? '도움 ON' : '도움 OFF'}]</strong> 기록 저장 완료!<br>
+                    이제 상단 스위치를 눌러 <strong>[${nextMode}]</strong> 상태로 다시 체험해보세요.
+                </div>
+            `;
         }
-    </script>
+        
+        document.getElementById('save-area').style.display = 'none';
+        document.getElementById('restart-btn').classList.remove('hidden-view');
+    }
+</script>
 </body>
 </html>
