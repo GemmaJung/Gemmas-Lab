@@ -1,40 +1,268 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
+<!DOCTYPE html>
+<html lang="ko">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta http-equiv="Content-Style-Type" content="text/css">
-  <title></title>
-  <meta name="Generator" content="Cocoa HTML Writer">
-  <meta name="CocoaVersion" content="2685.3">
-  <style type="text/css">
-    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
-    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Barrier - 시니어 키오스크 체험</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Pretendard', sans-serif; scroll-behavior: smooth; }
+        
+        /* 시니어 모드 (기본값): 시각적 불편함 극대화 */
+        .senior-mode { 
+            filter: blur(0.8px) contrast(0.85); 
+        }
+        .senior-mode .tiny-text { font-size: 8px; line-height: 1.2; }
+        .senior-mode .btn-target { padding: 2px; } /* 터치 영역 축소 */
+        
+        /* 정상 모드: 시각적 편안함 */
+        .normal-mode .tiny-text { font-size: 14px; line-height: 1.5; font-weight: bold; }
+        .normal-mode .btn-target { padding: 12px; }
+
+        .hidden-view { display: none !important; }
+        .frustration-shake { animation: shake 0.4s; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+        
+        /* 키오스크 버튼 공통 스타일 */
+        .kiosk-btn { 
+            width: 100%; border: 1px solid #cbd5e1; border-radius: 4px; 
+            transition: background 0.2s; cursor: pointer; text-align: center; 
+        }
+    </style>
 </head>
-<body>
-<p class="p1">&lt;!DOCTYPE html&gt;</p>
-<p class="p1">&lt;html lang="ko"&gt;</p>
-<p class="p1">&lt;head&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta charset="UTF-8"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;title&gt;Senior Experience Kiosk&lt;/title&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;style&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>/* 시니어 모드 전용 스타일 */</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.senior-mode {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>filter: blur(0.6px) contrast(0.8);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>font-family: 'serif'; /* 가독성이 떨어지는 폰트 유도 */</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.senior-mode button {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>cursor: pointer;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>transition: none;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.miss-click-area {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>position: absolute;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>inset: 0;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>z-index: 0;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.tiny-text { font-size: 0.65rem !important; }</p>
+<body class="bg-slate-50 text-slate-900">
+
+    <header class="min-h-screen flex flex-col items-center justify-center text-center px-4 bg-white">
+        <div class="px-4 py-1.5 mb-6 text-sm font-bold text-blue-600 bg-blue-50 rounded-full uppercase tracking-widest">Digital Inclusion Project</div>
+        <h1 class="text-4xl md:text-5xl font-extrabold mb-6 leading-tight">당신에게는 당연한 것이<br><span class="text-blue-600">누군가에게는 '벽'</span>이 됩니다.</h1>
+        <p class="text-slate-600 mb-10 max-w-xl mx-auto leading-relaxed">
+            시니어의 시각과 인지 능력에 맞춰 역설계된 키오스크 시뮬레이터입니다.<br>
+            당신은 한 번의 실수도 없이 결제까지 도달할 수 있습니까?
+        </p>
+        <a href="#simulator" class="px-10 py-4 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition-colors">체험 시작하기</a>
+    </header>
+
+    <section id="simulator" class="py-20 bg-slate-100 min-h-screen flex items-center">
+        <div class="max-w-5xl mx-auto px-4 grid lg:grid-cols-2 gap-12 items-center w-full">
+            
+            <div class="space-y-6">
+                <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200">
+                    <h3 class="font-bold text-xl mb-6 flex items-center gap-2">📊 실시간 분석 시스템</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="p-4 bg-red-50 rounded-2xl border border-red-100">
+                            <p class="text-xs text-red-500 font-bold mb-1 uppercase tracking-wider">Frustration Score (좌절 점수)</p>
+                            <p class="text-4xl font-black text-red-600" id="score-display">0</p>
+                        </div>
+                        <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                            <p class="text-xs text-slate-500 font-bold mb-1 uppercase tracking-wider">Time Elapsed (소요 시간)</p>
+                            <p class="text-4xl font-black text-slate-800" id="time-display">0s</p>
+                        </div>
+                    </div>
+                    <ul class="mt-6 space-y-2 text-sm text-slate-600 bg-slate-50 p-4 rounded-xl">
+                        <li>⚠️ <strong>오클릭 감지:</strong> 버튼 외 영역 클릭 시 좌절 점수 상승 (+5)</li>
+                        <li>⚠️ <strong>함정 버튼:</strong> 불필요한 옵션이나 뒤로가기 클릭 시 스트레스 가중 (+10)</li>
+                        <li>💡 <strong>팁:</strong> 키오스크 우측 상단의 '불편함 ON/OFF'를 눌러 차이를 비교하세요.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="relative mx-auto">
+                <div class="w-[340px] h-[680px] bg-slate-900 rounded-[3rem] p-3 shadow-2xl border-[8px] border-slate-800 relative">
+                    <div class="absolute top-8 left-1/2 -translate-x-1/2 w-16 h-1.5 bg-slate-800 rounded-full"></div>
+                    
+                    <div id="kiosk-screen" class="w-full h-full bg-white rounded-[2.2rem] overflow-hidden flex flex-col senior-mode">
+                        
+                        <div class="bg-slate-100 px-4 py-3 flex justify-between items-center border-b border-slate-200 z-10">
+                            <span class="text-[9px] font-bold text-slate-400">KIOSK OS v.3</span>
+                            <div class="flex items-center gap-2">
+                                <span class="text-[8px] font-bold text-slate-600">불편함 ON</span>
+                                <label class="relative inline-flex items-center cursor-pointer clickable">
+                                    <input type="checkbox" id="mode-toggle" class="sr-only peer" checked onchange="updateMode()">
+                                    <div class="w-8 h-4 bg-slate-300 rounded-full peer peer-checked:bg-red-500 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:after:translate-x-[16px]"></div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div id="view-port" class="flex-1 relative p-4 flex flex-col overflow-y-auto bg-white">
+                            
+                            <div id="view-home" class="view-content h-full flex flex-col justify-center gap-4">
+                                <h2 class="text-center font-bold text-sm mb-4">원하시는 거래를 선택하십시오</h2>
+                                <button onclick="goView('cafe')" class="clickable kiosk-btn py-5 hover:bg-slate-50 font-mono text-[10px] btn-target">1. BEVERAGE_ORDER</button>
+                                <button onclick="goView('burger')" class="clickable kiosk-btn py-5 hover:bg-slate-50 font-mono text-[10px] btn-target">2. MEAL_SET_UPGRADE</button>
+                                <button onclick="goView('parking')" class="clickable kiosk-btn py-5 hover:bg-slate-50 font-mono text-[10px] btn-target">3. EXIT_PARKING_FEE</button>
+                            </div>
+
+                            <div id="view-cafe" class="view-content hidden-view h-full flex flex-col">
+                                <div class="flex justify-between items-center mb-4 border-b pb-2">
+                                    <span class="tiny-text uppercase text-slate-400">Category: Coffee</span>
+                                    <span class="session-timer text-red-500 text-[10px] font-mono font-bold">15s</span>
+                                </div>
+                                <div class="grid grid-cols-2 gap-2 mb-4">
+                                    <div onclick="goView('cafe-opt')" class="clickable border p-2 rounded text-center btn-target">
+                                        <div class="w-full aspect-square bg-slate-100 mb-2"></div>
+                                        <p class="tiny-text">AMR_ICED_S_V2</p>
+                                        <p class="tiny-text text-blue-600 mt-1">4,500 KRW</p>
+                                    </div>
+                                    <div onclick="logFrustration(10)" class="clickable border p-2 rounded text-center opacity-60 btn-target">
+                                        <div class="w-full aspect-square bg-slate-100 mb-2"></div>
+                                        <p class="tiny-text">AMR_HOT_L_V1</p>
+                                        <p class="tiny-text text-blue-600 mt-1">5,100 KRW</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="view-cafe-opt" class="view-content hidden-view h-full flex flex-col">
+                                <h2 class="tiny-text mb-4 uppercase font-bold border-b pb-2">Personalize Options</h2>
+                                <div class="space-y-2 flex-1">
+                                    <label class="clickable flex justify-between items-center p-2 border border-slate-200 btn-target"><span class="tiny-text">ADD_ESPRESSO (+500)</span><input type="checkbox"></label>
+                                    <label class="clickable flex justify-between items-center p-2 border border-slate-200 btn-target"><span class="tiny-text">LESS_ICE_STILL_COLD</span><input type="checkbox"></label>
+                                    <label class="clickable flex justify-between items-center p-2 border border-slate-200 btn-target"><span class="tiny-text">OAT_MLK_SUB (+800)</span><input type="checkbox"></label>
+                                </div>
+                                <button onclick="goView('done')" class="clickable w-full py-4 bg-black text-white tiny-text mt-4">CONFIRM_AND_CHECKOUT</button>
+                            </div>
+
+                            <div id="view-burger" class="view-content hidden-view h-full flex flex-col">
+                                <div class="flex justify-between items-center mb-4 border-b pb-2">
+                                    <span class="tiny-text uppercase text-slate-400">Meal Config</span>
+                                    <span class="session-timer text-red-500 text-[10px] font-mono font-bold">15s</span>
+                                </div>
+                                <div class="flex-1 flex flex-col justify-center items-center text-center gap-4">
+                                    <h2 class="tiny-text font-bold">BGN_BURGER_SET</h2>
+                                    <p class="tiny-text text-slate-500">Would you like to upgrade to MEGA size?</p>
+                                    
+                                    <button onclick="logFrustration(15)" class="clickable w-full py-6 bg-red-600 text-white tiny-text font-bold animate-pulse btn-target">YES! UPGRADE NOW (+1,500)</button>
+                                    <button onclick="goView('done')" class="clickable w-1/2 py-2 text-slate-400 tiny-text underline mt-8 btn-target">No, skip this step</button>
+                                </div>
+                            </div>
+
+                            <div id="view-parking" class="view-content hidden-view h-full flex flex-col">
+                                <div class="flex justify-between items-center mb-8 border-b pb-2">
+                                    <span class="tiny-text uppercase text-slate-400">Vehicle Search</span>
+                                    <span class="session-timer text-red-500 text-[10px] font-mono font-bold">10s</span> </div>
+                                <p class="tiny-text text-center mb-6">Enter 4 digits of your plate</p>
+                                
+                                <div class="grid grid-cols-3 gap-1 mb-8">
+                                    <button onclick="logFrustration(2)" class="clickable border py-3 tiny-text bg-slate-50">9</button>
+                                    <button onclick="logFrustration(2)" class="clickable border py-3 tiny-text bg-slate-50">4</button>
+                                    <button onclick="logFrustration(2)" class="clickable border py-3 tiny-text bg-slate-50">7</button>
+                                    <button onclick="logFrustration(2)" class="clickable border py-3 tiny-text bg-slate-50">1</button>
+                                    <button onclick="goView('done')" class="clickable border py-3 tiny-text bg-blue-50 font-bold border-blue-200">5</button> <button onclick="logFrustration(2)" class="clickable border py-3 tiny-text bg-slate-50">0</button>
+                                    <button onclick="logFrustration(2)" class="clickable border py-3 tiny-text bg-slate-50">2</button>
+                                    <button onclick="logFrustration(2)" class="clickable border py-3 tiny-text bg-slate-50">8</button>
+                                    <button onclick="logFrustration(2)" class="clickable border py-3 tiny-text bg-slate-50">3</button>
+                                </div>
+                                <p class="text-[8px] text-red-500 text-center">※ Pressing wrong keys will cause errors.</p>
+                            </div>
+
+                            <div id="view-done" class="view-content hidden-view h-full flex flex-col items-center justify-center text-center">
+                                <div class="text-5xl mb-6">🧾</div>
+                                <h2 class="font-bold text-sm mb-4">거래가 완료되었습니다</h2>
+                                <div class="bg-slate-50 p-4 rounded-xl w-full mb-8 border border-slate-200">
+                                    <p class="text-[10px] text-slate-600 mb-2">당신의 최종 좌절 점수</p>
+                                    <p class="text-2xl font-black text-red-600" id="final-score">0</p>
+                                </div>
+                                <p class="text-[10px] text-slate-500 leading-relaxed mb-8 break-keep">
+                                    이 짧은 과정에서 느낀 답답함과 초조함이<br>누군가에게는 매일 마주하는 현실입니다.
+                                </p>
+                                <button onclick="location.reload()" class="clickable px-6 py-3 bg-slate-900 text-white text-[10px] font-bold rounded uppercase tracking-widest">Restart Experience</button>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        let frustration = 0;
+        let time = 0;
+        let sessionTimer;
+        let timeLeft = 15;
+
+        // 전체 진행 시간 타이머
+        setInterval(() => {
+            time++;
+            document.getElementById('time-display').innerText = time + 's';
+        }, 1000);
+
+        // 시니어 모드 <-> 정상 모드 토글
+        function updateMode() {
+            const isSenior = document.getElementById('mode-toggle').checked;
+            const screen = document.getElementById('kiosk-screen');
+            if(isSenior) {
+                screen.classList.add('senior-mode');
+                screen.classList.remove('normal-mode');
+            } else {
+                screen.classList.remove('senior-mode');
+                screen.classList.add('normal-mode');
+            }
+        }
+
+        // 좌절 점수 증가 로직
+        function logFrustration(val) {
+            frustration += val;
+            const el = document.getElementById('score-display');
+            el.innerText = frustration;
+            // 점수 상승 시 화면 흔들림 효과
+            el.parentElement.classList.add('frustration-shake');
+            setTimeout(() => el.parentElement.classList.remove('frustration-shake'), 400);
+        }
+
+        // 화면 전환 및 타이머 관리 로직
+        function goView(viewId) {
+            // 모든 뷰 숨기기
+            document.querySelectorAll('.view-content').forEach(v => v.classList.add('hidden-view'));
+            // 대상 뷰 보이기
+            document.getElementById('view-' + viewId).classList.remove('hidden-view');
+            
+            // 타이머 초기화 및 시작
+            clearInterval(sessionTimer);
+            if(viewId === 'cafe' || viewId === 'burger') {
+                startSessionTimer(15);
+            } else if (viewId === 'parking') {
+                startSessionTimer(10); // 주차정산은 시간 압박 극대화
+            } else if (viewId === 'done') {
+                document.getElementById('final-score').innerText = frustration;
+            }
+        }
+
+        // 각 단계별 제한 시간 로직
+        function startSessionTimer(seconds) {
+            timeLeft = seconds;
+            updateTimerDisplay();
+            
+            sessionTimer = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+                
+                if(timeLeft <= 0) {
+                    clearInterval(sessionTimer);
+                    alert("응답 시간이 초과되어 처음으로 돌아갑니다. (Session Expired)");
+                    location.reload();
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            document.querySelectorAll('.session-timer').forEach(el => {
+                if(!el.closest('.hidden-view')) {
+                    el.innerText = timeLeft + 's';
+                }
+            });
+        }
+
+        // 오클릭(Miss-click) 감지: 
+        // 클릭 가능한 요소(.clickable)가 아닌 배경 화면이나 빈 공간을 터치하면 점수 가중
+        document.getElementById('view-port').addEventListener('click', (e) => {
+            if(!e.target.closest('.clickable')) {
+                logFrustration(5);
+            }
+        });
+    </script>
+</body>
+</html><p class="p1"><span class="Apple-converted-space">        </span>.tiny-text { font-size: 0.65rem !important; }</p>
 <p class="p1"><span class="Apple-converted-space">        </span>.hidden-step { display: none; }</p>
 <p class="p1"><span class="Apple-converted-space">    </span>&lt;/style&gt;</p>
 <p class="p1">&lt;/head&gt;</p>
